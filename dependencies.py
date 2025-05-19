@@ -14,17 +14,6 @@ class TokenBearer(HTTPBearer):
     
         token = creds.credentials
         
-        token_data = decode_token(token=token)
-        
-        if not self.token_valid(token=token):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "error": "This token is invalid or expired",
-                    "resolution": "Please get new token"
-                        }
-            )
-        
         """#aioredis part for revoke an access token and logout
         if await token_in_blocklist(token_data['jti']):
             raise HTTPException(
@@ -35,10 +24,9 @@ class TokenBearer(HTTPBearer):
                         }
             )"""
         
+        self.verify_token_data(token_data=token)
         
-        self.verify_token_data(token_data=token_data)
-        
-        return token_data
+        return token
     
     def token_valid(self, token: str) -> bool:
         
