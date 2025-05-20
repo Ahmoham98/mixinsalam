@@ -63,3 +63,27 @@ class BasalamCreate(BaseModel):
     packaging_dimensions: List[ProductDimentionSchema] | None
     is_wholesale: bool | None
 
+class UpdateVariants:
+    id: int
+    price: int | None  #This is actually an Enum or obj
+    stock: str | None  #This is actually an Enum or obj
+
+class BasalamUpdateInfo:
+    id: int
+    name: str | None
+    price: int | None
+    order: str | None   #This is actually an Enum or obj
+    stock: str | None   #This is actually an Enum or obj
+    status: str | None  #This is actually an Enum or obj
+    preparation_days: str | None   #This is actually an Enum or obj
+    variants: UpdateVariants | None
+    product_attribute: ProductAttributes | None
+    shipping_data: ProductShipingData | None 
+
+
+class BaslaamUpdate(BaseModel):
+    data: BasalamUpdateInfo
+    
+    
+    class Config:
+        arbitrary_types_allowed=True
