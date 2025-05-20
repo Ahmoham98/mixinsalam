@@ -12,7 +12,7 @@ put = "PUT"
 patch = "PATCH"
 delete = "DELETE"
 
-class ProductController:
+class ProductController:                # Need to assign real body data from schemas after testing the endpoint using inserted sample data
     def __init__(self):
         pass
     
