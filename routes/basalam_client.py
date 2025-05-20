@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status, Depends
 import requests
 import json
 from dependencies import AccessTokenBearer
+from configure import Config
 
 access_token_bearer = AccessTokenBearer()
 
@@ -14,7 +15,7 @@ patch = "PATCH"
 delete = "DELETE"
 
 
-@basalam_client.post("/get-user-access-token")
+@basalam_client.get("/get-user-access-token/{code}/{state}")
 async def get_access_token(code: str, state: str):          #state is the random name you enter when creating client
                                                             #it's value in here is "management-test"
     if state != "management-test":
@@ -23,23 +24,20 @@ async def get_access_token(code: str, state: str):          #state is the random
     #creating request
     method=post
     url= "https://auth.basalam.com/oauth/token"         #AOuth2 request for getting access-token from basalam
-    headers={
-        'Content-Type: application/json',
-        'Accept: application/json'
-        
-    }
     body={
         "grant_type" : "authorization_code",
-        "client_id" : client_id,
-        "client_secret" : client_secret,
-        "redirect_uri" : redirect_uri,
+        "client_id" : 1083,
+        "client_secret" : Config.BASALAM_SECRET,
+        "redirect_uri" : Config.REDIRECT_URL,
         "code" : code
     }
     #send request
-    response = requests.request(method=method, url=url, headers=headers, data=body)
+    response = requests.request(method=method, url=url, data=body)
     
     if response.status_code == 200:
         pass
+    elif response.status_code == 500:
+        return "we have problem with basalam sever to for getting access and refresh token"
     else:
         return "try for getting access token failed. try sending a valid request for granting access token"
     # get response and store necessary data
@@ -57,21 +55,17 @@ async def get_access_token(code: str, state: str):          #state is the random
 
     return data
 
-@basalam_client.get("/get-client-access-toke")
+@basalam_client.get("/get-client-access-token")
 async def get_client_access_token():
     method=post
     url='https://auth.basalam.com/oauth/token'
-    headers={
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
     body={
-        "client_id" : client_id,
-        "client_secret" : client_secret,
+        "client_id" : 1083,
+        "client_secret" : Config.BASALAM_SECRET,
         "grant_type" : "client_credentials",
         "scope": "*"
     }
-    response = requests.request(method=method, url=url, headers=headers, data=body)
+    response = requests.request(method=method, url=url, data=body)
     
     if response.status_code == 200:
         
@@ -107,6 +101,7 @@ async def get_my_basalam_data(token: str = Depends(access_token_bearer)):
         'Authorization': f'Bearer {token}'
     }
     response = requests.request(method=method, url=url, headers=headers)
+    
     
     if response.status_code == 200:
         
