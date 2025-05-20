@@ -1,0 +1,65 @@
+from typing import List
+from pydantic import BaseModel, Field
+
+class PropertyVariant(BaseModel):
+    value: str
+    property: str
+
+
+
+class WholeSalePrice(BaseModel):
+    price: int = Field(ge=999, le=10000000000)
+    min_quantity: int = Field(ge=1)
+
+class ProductAttributes(BaseModel):
+    attribute_id: int 
+    value: int | None
+    selected_values: List[int] | None
+
+class ProductVariants(BaseModel):
+    price: int
+    stock: int
+    sku : str | None     # This is actually a Enum type that need to be fixed in future
+    properties: List[PropertyVariant]
+    
+
+class ProductShipingData(BaseModel):
+    illegal_for_iran: bool
+    illegal_for_same_city: bool
+
+
+class ProductDimentionSchema(BaseModel):
+    height: int
+    length: int
+    width: int
+
+
+class BasalamCreate(BaseModel):
+    name: str
+    photo: str | None   #This is actually an Enum or obj
+    photos: List[int] | None
+    video: str | None   #This is actually an Enum or obj
+    brief: str | None   #This is actually an Enum or obj
+    description: str | None  #This is actually an Enum or obj
+    order: str | None   #This is actually an Enum or obj
+    category_id: int
+    status: int
+    preparation_days: int
+    keywords: List[str] | None
+    weight: str | None    #This is actually an Enum or obj
+    package_weight: int
+    price: str | None #This is actually an Enum or obj
+    stock: str | None #This is actually an Enum or obj
+    shipping_city_ids: List[int] | None #This is actually an Enum or obj
+    shipping_method_ids: List[int] | None #This is actually an Enum or obj
+    wholesale_prices: List[WholeSalePrice] | None
+    product_attribute: List[ProductAttributes] | None
+    virtual: str | None   #This is actually an Enum or obj
+    variants: List[ProductVariants] | None
+    shipping_data: List[ProductShipingData] | None
+    unit_quantity: str | None  #This is actually an Enum or obj
+    unit_type: str | None  #This is actually an Enum or obj 
+    sku: str | None  #This is actually an Enum or obj
+    packaging_dimensions: List[ProductDimentionSchema] | None
+    is_wholesale: bool | None
+
