@@ -73,33 +73,6 @@ class RefreshTokenBearer(TokenBearer):
                 )
 
 
-class EqualityChecker:
-    def __init__(self, handler, mixin_body: dict, basalam_body: dict):
-        self.mixin_body = mixin_body
-        self.basalam_body = basalam_body
-        self.handler = handler
-    
-    def __call__(self):
-
-        
-        if self.handler == get:
-            #Equality checker specified if user tried to get product
-            
-            #checks if product titles and price are the same
-            if self.mixin_body['result']['name'] != self.basalam_body['data']['title']:
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Base on checking we did, prodcuts in Mixin and Basalam Are not the same. Difference could be in products title, please Update the product in update section to make them both same for you... ")
-            if self.mixin_body['result']['price'] != self.basalam_body['data']['price']:
-                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Base on checking we did, prodcuts in Mixin and Basalam Are not the same. Difference could be in product price, please Update the product in update section to make them both same for you... ")
-        
-        if self.handler == post:
-            #Equality checker specified if user tried to create product
-            pass
-        
-        
-        if self.handler == put:
-            #Equality checker specified if user tried to create product
-            pass
-
 
 
 
