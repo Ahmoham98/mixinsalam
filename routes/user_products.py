@@ -3,10 +3,9 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 import requests
 import json
 
-from dependencies import EqualityChecker
 from database import get_session
 from schema.mixin import MixinCreate, MixinAddToDatabase
-from schema.basalam import BasalamCreate
+from schema.basalam import BasalamCreate, BaslaamUpdate
 from controllers.products import ProductController
 
 
@@ -17,177 +16,44 @@ patch = "PATCH"
 delete = "DELETE"
 
 
-get_products_equality_checker = EqualityChecker(handler=get, mixin_body="some random data dict", basalam_body='some random data dict')
-post_products_equality_checker = EqualityChecker(handler=post, mixin_body="some random data dict", basalam_body='some random data dict')
-put_products_equality_checker = EqualityChecker(handler=put, mixin_body="some random data dict", basalam_body='some random data dict')
-
 product_router = APIRouter()
 
 
 @product_router.get("/my-mixin-products")
-async def get_all_mixin_products(url: str, mixin_token: str, mixin_page: int = 1):
-    mixin_method=get
-    mixin_url=f"https://{url}/api/management/v1/products/"
-    mixin_headers={
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': f'Api-Key {mixin_token}'
-    }
-    mixin_params={
-        'page': mixin_page
-    }
-    
-    response = requests.request(method=mixin_method, url=mixin_url, params=mixin_params, headers=mixin_headers)
-    
-    if response.status_code == 200:
-        response = response.json()
-        
-        mixin_body = response
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
-    
-    return mixin_body
-
+async def get_all_mixin_products(mixin_url: str, mixin_token: str, mixin_page: int = 1):
+    result = await ProductController.get_mixin_products(url=mixin_url, mixin_token=mixin_token, mixin_page=mixin_page)
+    return result
 
 @product_router.get("/my-basalam-products")
 async def get_all_basalam_products(basalam_page: int = 1):
-    method= get
-    url="https://core.basalam.com/v3/products"
-    headers={
-        'Accept': 'application/json'
-    }
-    params={
-        "page": basalam_page
-    }
-    
-    response = requests.request(method=method, url=url, headers=headers, params=params)
-    
-    if response.status_code == 200:
-        response = response.json()
-        
-        basalam_body = response
-    else: 
-        raise HTTPException(status_code=404, detail="we can't connect to the provider")
-    
-    return basalam_body
+    result = await ProductController.get_basalam_products(basalam_page=basalam_page)
+    return result
 
-
-@product_router.get("/get-if-equal")
-async def get_all_product(url: str, mixin_token: str, mixin_page: int, basalam_token: str, basalam_page: int):
-    #get all products from mixin
-    
-    mixin_method=get
-    mixin_url=f"https://{url}/api/management/v1/products/"
-    mixin_headers={
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': f'Api-Key {mixin_token}'
-    }
-    mixin_params={
-        'page': mixin_page
-    }
-    
-    response = requests.request(method=mixin_method, url=mixin_url, params=mixin_params, headers=mixin_headers)
-    
-    if response.status_code == 200:
-        response = response.json()
-        
-        mixin_body = response
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
-    
-    #get all products form basalam
-    
-    method= get
-    url="https://core.basalam.com/v3/products"
-    headers={
-        'Accept': 'application/json'
-    }
-    params={
-        "page": basalam_page
-    }
-    
-    response = requests.request(method=method, url=url, headers=headers, params=params)
-    
-    if response.status_code == 200:
-        response = response.json()
-        
-        basalam_body = response
-    else: 
-        raise HTTPException(status_code=404, detail="we can't connect to the provider")
-    
-    result = await EqualityChecker(handler=get, mixin_body=mixin_body, basalam_body=basalam_body)
-    
-    if result:
-        
-        data = {
-            "your product_in_basalam": {
-                basalam_body
-            },
-            "mixin_product_in_mixin": {
-                mixin_body
-            }
+@product_router.get("/is-equal")
+async def check_if_is_equal(mixin_url: str, mixin_token: str, mixin_prodcut_id: int, basalam_token: str, basalam_product_id: int):
+    result = await ProductController.is_equal(basalam_product_id=basalam_product_id, mixin_url=mixin_url, mixin_token=mixin_token, mixin_product_id=mixin_prodcut_id,)
+    return {
+        "data": {
+            "message": "user check successfully!",
+            "result": result
         }
-        
-        return data
-    else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="your product in mixin and basalam are not the same. go to the update secrion to make them same for you.")
-
+    }
 
 @product_router.get("/mixin/{mixin_product_id}")
-async def get_async_product(
+async def get_mixin_product_by_product_id(
     mixin_url: str,
     mixin_token: str,
     mixin_product_id: int,
-    _: bool = Depends(get_products_equality_checker)
 ):
-    method = get
-    pk = mixin_product_id
-    url=f"https://{mixin_url}/api/management/v1/products/{pk}"
-    headers={
-        'Authorization': f'Api-Key {mixin_token}'
-    }
-    
-    response = requests.request(method=method, url=url, headers=headers)
-    
-    if response.status_code == 200:
-        mixin_body = response.json()
-        return mixin_body
-    elif response.status_code == 403:
-        raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
-    elif response.status_code == 500:
-        raise HTTPException(status_code=404, detail="500 Internal server error occurred. It seems we have problem in request or some issue or problem from the server. check the request and parameters again for future request.")
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting mixin product with given id. check if you are connected to mixin website")
-
+    result = await ProductController.get_mixin_product(mixin_url=mixin_url, mixin_product_id=mixin_product_id, mixin_token=mixin_token)
+    return result
 
 @product_router.get("/basalam/{basalam_product_id}")
-async def get_async_product(
+async def get_basalam_product_by_product_id(
     basalam_product_id: int,
-    _: bool = Depends(get_products_equality_checker)
 ):
-    method= get
-    url=f"https://core.basalam.com/v3/products/{basalam_product_id}"
-    headers={
-        'Accept': 'application/json',
-        'prefer': 'minimal'
-    }
-    
-    response = requests.request(method=method, url=url, headers=headers)
-    
-    if response.status_code == 200:
-        basalam_body = response.json()
-        
-        return basalam_body
-        
-    elif response.status_code == 403:
-        raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
-    elif response.status_code == 500:
-        raise HTTPException(status_code=404, detail="500 Internal server error occurred. It seems we have problem in request or some issue or problem from the server. check the request and parameters again for future request.")
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
-
-
+    result = await ProductController.get_basalam_product(basalam_product_id=basalam_product_id)
+    return result
 
 @product_router.post("/mixin")
 async def create_mixin_product(
@@ -196,75 +62,37 @@ async def create_mixin_product(
     mixin_url: str,
     mixin_token: str,
     data: MixinCreate,
-    _: bool = Depends(get_products_equality_checker)
 ):
-    method = post
-    url=f"https://{mixin_url}/api/management/v1/products/"
-    headers={
-        'Authorization': f'Api-Key {mixin_token}'
-    }
-    body={
-        data
-    }
-    response = requests.request(method=method, url=url, headers=headers, data=body)
-    
-    if response.status_code == 200:
-        mixin_body = response.json()
-        
-        #make the data ready to be created in the database too
-        new_product = MixinAddToDatabase()
-        new_product.mixin_id = mixin_body['id']
-        new_product.name = data['name']
-        new_product.price = data['price']
-        
-        return mixin_body
-    
-    elif response.status_code == 403:
-        raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
-    elif response.status_code == 500:
-        raise HTTPException(status_code=404, detail="500 Internal server error occurred. It seems we have problem in request or some issue or problem from the server. check the request and parameters again for future request.")
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting mixin product with given id. check if you are connected to mixin website")
-
-    
-    
+    result = await ProductController.create_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_body=data)
+    return result
 
 @product_router.post("/basalam/{vendor_id}")
-async def get_async_product(
+async def create_basalam_product(
     vendor_id: int,
     data: BasalamCreate,
-    _: bool = Depends(get_products_equality_checker)):
-    method= post
-    url=f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
-    headers={
-        'Accept': 'application/json',
-        'prefer': 'minimal'
-    }
-    body={
-        data
-    }
-    response = requests.request(method=method, url=url, headers=headers, data=body)
-    
-    if response.status_code == 200:
-        basalam_body = response.json()
-        
-        return basalam_body
-        
-    elif response.status_code == 403:
-        raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
-    elif response.status_code == 500:
-        raise HTTPException(status_code=404, detail="500 Internal server error occurred. It seems we have problem in request or some issue or problem from the server. check the request and parameters again for future request.")
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
-
-    
+):
+    result = await ProductController.create_basalam_product(vendor_id=vendor_id, basalam_body=data)
+    return result
 
 @product_router.put("/mixin/{mixin_product_id}")
-async def get_async_product(_: bool = Depends(get_products_equality_checker)):
-    pass
+async def update_mixin_product(mixin_url: str, mixin_token: str, mixin_product_id: int, mixin_body: MixinCreate):
+    result = await ProductController.update_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_product_id=mixin_product_id, mixin_body=mixin_body)
+    return result
 
-@product_router.put("/basalam/{basalam_product_id}")
-async def get_async_product(_: bool = Depends(get_products_equality_checker)):
-    pass
+@product_router.put("/basalam/{vendor_id}")
+async def update_basalam_product(vendor_id: int, basalam_body: BaslaamUpdate):
+    result = await ProductController.update_basalam_product(vendor_id=vendor_id, basalam_body=basalam_body)
+    return result
 
-
+@product_router.delete("/")
+async def delete_product(mixin: bool, basalam: bool):
+    if mixin == True and basalam == True:
+        result = await ProductController.delete_mixin_product()
+        return {"message": "sorry, we don't have access to delete product from basalam from here! you have to delete it in basalam site itself :)"}
+    if mixin == True and basalam == False:
+        result = await ProductController.delete_mixin_product()
+        return result
+    if mixin == False and basalam == True:
+        return {"message": "sorry, we don't have access to delete product from basalam from here! you have to delete it in basalam site itself :)"}
+    else:
+        pass
