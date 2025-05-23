@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio.session import AsyncSession
 from schema.mixin import MixinAddToDatabase, MixinCreate
 from schema.basalam import BasalamCreate, BaslaamUpdate
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
 import requests
 
 post = "POST"
@@ -16,7 +16,7 @@ class ProductController:                # Need to assign real body data from sch
     def __init__(self):
         pass
     
-    async def get_mixin_products(self, url: str, mixin_token: str, mixin_page: int):
+    async def get_mixin_products(url: str, mixin_token: str, mixin_page: int):
         mixin_method=get
         mixin_url=f"https://{url}/api/management/v1/products/"
         mixin_headers={
@@ -38,11 +38,12 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
     
-    async def get_basalam_products(self, basalam_page: int):
+    async def get_basalam_products(token: str, vendor_id: int, basalam_page: int):
         method= get
-        url="https://core.basalam.com/v3/products"
+        url=f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
         headers={
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authorization': f'Bearer {token}'
         }
         params={
             "page": basalam_page
@@ -58,7 +59,7 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=404, detail="we can't connect to the provider")
     
-    async def get_mixin_product(self, mixin_url: str, mixin_product_id: int, mixin_token: str ):
+    async def get_mixin_product(mixin_url: str, mixin_product_id: int, mixin_token: str ):
         method = get
         pk = mixin_product_id
         url=f"https://{mixin_url}/api/management/v1/products/{pk}"
@@ -78,11 +79,12 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting mixin product with given id. check if you are connected to mixin website")
     
-    async def get_basalam_product(self, basalam_product_id: int):
+    async def get_basalam_product(token: str, basalam_product_id: int):
         method= get
         url=f"https://core.basalam.com/v3/products/{basalam_product_id}"
         headers={
             'Accept': 'application/json',
+            'Authorization': f'Bearer {token}',
             'prefer': 'minimal'
         }
         
@@ -100,7 +102,7 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
     
-    async def create_mixin_product(self, url: str, mixin_token: str, mixin_body: MixinCreate):
+    async def create_mixin_product(url: str, mixin_token: str, mixin_body: MixinCreate):
         mixin_method=post
         mixin_url=f"https://{url}/api/management/v1/products/"
         mixin_headers={
@@ -117,81 +119,20 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
         
-    async def create_basalam_product(self, vendor_id: int, basalam_body: BasalamCreate):
+    async def create_basalam_product(token: str ,vendor_id: int, basalam_body: BasalamCreate, photo: UploadFile = None):
         method=post
         url=f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
         body=basalam_body
-        data = {
-        "name": "string",
-        "photo": 0,
-        "photos": [
-            0
-        ],
-        "video": 0,
-        "brief": "string",
-        "description": "string",
-        "order": 0,
-        "category_id": 0,
-        "status": 0,
-        "preparation_days": 0,
-        "keywords": [
-            "string"
-        ],
-        "weight": 0,
-        "package_weight": 0,
-        "price": 0,
-        "stock": 0,
-        "shipping_city_ids": [
-            0
-        ],
-        "shipping_method_ids": [
-            0
-        ],
-        "wholesale_prices": [
-            {
-            "price": 10000,
-            "min_quantity": 2
-            }
-        ],
-        "product_attribute": [
-            {
-            "attribute_id": 0,
-            "value": "string",
-            "selected_values": [
-                0
-            ]
-            }
-        ],
-        "virtual": True,
-        "variants": [
-            {
-            "price": 0,
-            "stock": 0,
-            "sku": "string",
-            "properties": [
-                {
-                "value": "string",
-                "property": "string"
-                }
-            ]
-            }
-        ],
-        "shipping_data": {
-            "illegal_for_iran": True,
-            "illegal_for_same_city": True
-        },
-        "unit_quantity": 0,
-        "unit_type": 0,
-        "sku": "string",
-        "packaging_dimensions": {
-            "height": 0,
-            "length": 0,
-            "width": 0
-        },
-        "is_wholesale": True
+        headers={
+            'Authorization': f'Bearer {token}'
         }
         
-        response = requests.request(method=method, url=url, data=data)
+        files = {}
+        if photo: 
+            files['photo'] = (photo.filename, await photo.read(), photo.content_type)
+        
+        
+        response = requests.request(method=method, url=url, data=body, headers=headers, files=files)
         
         if response.status_code == 200:
             basalam_body = response.json()
@@ -205,7 +146,7 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
     
-    async def update_mixin_product(self, url: str, mixin_token: str, mixin_product_id: int, mixin_body: MixinCreate):
+    async def update_mixin_product(url: str, mixin_token: str, mixin_product_id: int, mixin_body: MixinCreate):
         mixin_method=put
         pk=mixin_product_id
         mixin_url=f"https://{url}/api/management/v1/products/{pk}"
@@ -223,45 +164,25 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
     
-    async def update_basalam_product(self, vendor_id: int, basalam_body: BaslaamUpdate):
+    @staticmethod
+    async def update_basalam_product(token: str ,product_id: int, basalam_body: dict, photo: UploadFile = None):
         method=patch
-        url=f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
-        body=basalam_body
-        data = {
-                "data": [
-                    {
-                    "id": 0,
-                    "name": "string",
-                    "price": 0,
-                    "order": 0,
-                    "stock": 0,
-                    "status": 0,
-                    "preparation_days": 0,
-                    "variants": [
-                        {
-                        "id": 0,
-                        "price": 0,
-                        "stock": 0
-                        }
-                    ],
-                    "product_attribute": [
-                        {
-                        "attribute_id": 0,
-                        "value": "string",
-                        "selected_values": [
-                            0
-                        ]
-                        }
-                    ],
-                    "shipping_data": {
-                        "illegal_for_iran": True,
-                        "illegal_for_same_city": True
-                    }
-                    }
-                ]
-                }
+        url=f"https://core.basalam.com/v3/products/{product_id}"
+        headers={
+            'Authorization': f'Bearer {token}'
+        }
+        body= basalam_body
         
-        response = requests.request(method=method, url=url, data=data)
+        files = {}
+        if photo: 
+            files['photo'] = (photo.filename, await photo.read(), photo.content_type)
+        
+        response = requests.request(method=method, url=url, data=body, headers=headers, files=files)
+        
+        return {"data": {  
+            "status_code": response.status_code,
+            "response": response.json()
+        }}
         
         if response.status_code == 200:
             basalam_body = response.json()
@@ -275,7 +196,7 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
     
-    async def delete_mixin_product(self, mixin_product_id: int, url: str, mixin_token: str ):
+    async def delete_mixin_product(mixin_product_id: int, url: str, mixin_token: str ):
         method=delete
         pk = mixin_product_id
         url=f"https://{url}/api/management/v1/products/{pk}"
@@ -294,7 +215,7 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting mixin product with given id. check if you are connected to mixin website")
     
-    async def is_equal(self, basalam_product_id: int, mixin_url: str, mixin_token: str , mixin_product_id: int):
+    async def is_equal(basalam_product_id: int, mixin_url: str, mixin_token: str , mixin_product_id: int):
         basalam_product = await self.get_basalam_product(basalam_product_id=basalam_product_id)
         mixin_product = await self.get_mixin_product(mixin_url=mixin_url, mixin_product_id=mixin_product_id, mixin_token=mixin_token)
         
