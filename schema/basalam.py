@@ -36,7 +36,6 @@ class ProductDimentionSchema(BaseModel):
 
 class BasalamCreate(BaseModel):
     name: str
-    photo: str | None   #This is actually an Enum or obj
     photos: List[int] | None
     video: str | None   #This is actually an Enum or obj
     brief: str | None   #This is actually an Enum or obj
