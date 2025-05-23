@@ -15,11 +15,8 @@ delete = "DELETE"
 async def get_current_user():
     method=get
     url="https://core.basalam.com/v3/users/me"
-    headers={
-        'Accept': 'application/json'
-    }
     
-    response = requests.request(method=method, url=url, headers=headers)
+    response = requests.request(method=method, url=url)
     
     if response.status_code == 200:
         return response.json()
