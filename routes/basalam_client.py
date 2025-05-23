@@ -8,6 +8,10 @@ access_token_bearer = AccessTokenBearer()
 
 basalam_client = APIRouter()
 
+basalam_user_access_token = "Bearer"
+basalam_user_refresh_token = "Bearer"
+
+
 post = "POST"
 get = "GET"
 put = "PUT"
@@ -15,45 +19,48 @@ patch = "PATCH"
 delete = "DELETE"
 
 
-@basalam_client.get("/get-user-access-token/{code}/{state}")
+@basalam_client.get("/get-user-access-token")
 async def get_access_token(code: str, state: str):          #state is the random name you enter when creating client
                                                             #it's value in here is "management-test"
     if state != "management-test":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="you are in a wrong state. make sure your state is vaild...")
+        return {"message": "please enter a valid state"}
     
+
     #creating request
     method=post
     url= "https://auth.basalam.com/oauth/token"         #AOuth2 request for getting access-token from basalam
     body={
         "grant_type" : "authorization_code",
-        "client_id" : 1083,
+        "client_id" : Config.ID,
         "client_secret" : Config.BASALAM_SECRET,
-        "redirect_uri" : Config.REDIRECT_URL,
-        "code" : code
+        "redirect_uri" : Config.REDIRECT_URI,
+        "code" : f"{code}"
     }
+    
     #send request
     response = requests.request(method=method, url=url, data=body)
     
     if response.status_code == 200:
-        pass
+        response = response.json()
+        
+        #stores tokens globaly
+        global basalam_user_access_token
+        global basalam_user_refresh_token
+        basalam_user_access_token = basalam_user_access_token + " " + response["access_token"]
+        basalam_user_refresh_token = basalam_user_access_token + " " + response["refresh_token"]
+        
+        return  {"result": {
+            "message": "you are connected to basalam successfully :) ",
+            "spacer": "                                              ",
+            "response": response
+        }}
+    
     elif response.status_code == 500:
         return "we have problem with basalam sever to for getting access and refresh token"
     else:
         return "try for getting access token failed. try sending a valid request for granting access token"
     # get response and store necessary data
-    response = response.json()
     
-    basalam_access_token = response['access_token']
-    basalam_refresh_token = response['refresh_token']
-
-    data = {
-        "baslam-credentials": {
-            "access-token": basalam_access_token,
-            "refresh-token": basalam_refresh_token
-        }
-    }
-
-    return data
 
 @basalam_client.get("/get-client-access-token")
 async def get_client_access_token():
@@ -106,32 +113,14 @@ async def get_my_basalam_data(token: str = Depends(access_token_bearer)):
     if response.status_code == 200:
         
         response = response.json()
-        
-        user_id = response['id']
-        user_hash_id = response['hash_id']
-        username = response['username']
-        name = response['name']
-        
-        vendor_id = response['vendor']['id']
-        vendor_identifier = response['vendor']['identifier']
-        vendor_title = response['vendor']['title']
-        
-        data = {
-            "user": {
-                "id": user_id,
-                "hash_id": user_hash_id,
-                "username": username,
-                "name": name
-            },
-            "vendor": {
-                "id": vendor_id,
-                "identifier": vendor_identifier,
-                "title": vendor_title
-            }
-        }
-        return data
+        return response
+    
     else:
-        return {"message": "problem in fetch user data from basalam. request may have problem here... "}
+        return {
+            "message": "problem in fetch user data from basalam. request may have problem here... ",
+            "status_code": response.status_code,
+            "response": response.json()
+        }
 
 
 @basalam_client.get("/verify-my-token")
