@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str
     ID: int
-    REDIRECT_URL: str
+    REDIRECT_URI: str
     NAME: str
     BASALAM_SECRET: str
     
