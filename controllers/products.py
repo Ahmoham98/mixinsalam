@@ -5,6 +5,8 @@ from schema.basalam import BasalamCreate, BaslaamUpdate
 
 from fastapi import HTTPException, status, UploadFile
 import requests
+import json
+import httpx
 
 post = "POST"
 get = "GET"
@@ -103,13 +105,17 @@ class ProductController:                # Need to assign real body data from sch
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
     
     async def create_mixin_product(url: str, mixin_token: str, mixin_body: MixinCreate):
-        mixin_method=post
         mixin_url=f"https://{url}/api/management/v1/products/"
         mixin_headers={
             'Authorization': f'Api-Key {mixin_token}'
         }
+        mixin_body = mixin_body.model_dump()
         body=mixin_body
-        response = requests.request(method=mixin_method, url=mixin_url, headers=mixin_headers, data=body)
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url=mixin_url, headers=mixin_headers, json=body)
+        
+        return response.status_code
         
         if response.status_code == 200:
             response = response.json()
@@ -119,43 +125,67 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
         
-    async def create_basalam_product(token: str ,vendor_id: int, basalam_body: BasalamCreate, photo: UploadFile = None):
-        method=post
-        url=f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
-        body=basalam_body
-        headers={
-            'Authorization': f'Bearer {token}'
+        
+    @staticmethod
+    async def upload_product_image(token: str, product_id: int, photo: UploadFile):
+        url = "https://core.basalam.com/v3/product-photos/upload"
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        files = {
+            "photo": (photo.filename, await photo.read(), photo.content_type),
+            "product_id": (None, str(product_id))  # Notice this is form field, not file
+        }
+
+        response = requests.post(url, headers=headers, files=files)
+        return {
+            "status_code": response.status_code,
+            "response": response.json()
         }
         
-        files = {}
-        if photo: 
-            files['photo'] = (photo.filename, await photo.read(), photo.content_type)
-        
-        
-        response = requests.request(method=method, url=url, data=body, headers=headers, files=files)
-        
-        if response.status_code == 200:
-            basalam_body = response.json()
-            
-            return basalam_body
-            
+    @staticmethod
+    async def create_basalam_product(token: str, vendor_id: int, body: dict):
+        url = f"https://core.basalam.com/v4/vendors/{vendor_id}/products"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, headers=headers, json=body)
+
+        if response.status_code == 201:
+            return response.json()  # Includes the new product’s ID
         elif response.status_code == 403:
-            raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
-        elif response.status_code == 500:
-            raise HTTPException(status_code=404, detail="500 Internal server error occurred. It seems we have problem in request or some issue or problem from the server. check the request and parameters again for future request.")
+            raise HTTPException(403, "Forbidden – check your token or permissions")
         else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
+            raise HTTPException(response.status_code, response.text)
     
     async def update_mixin_product(url: str, mixin_token: str, mixin_product_id: int, mixin_body: MixinCreate):
-        mixin_method=put
         pk=mixin_product_id
         mixin_url=f"https://{url}/api/management/v1/products/{pk}"
         mixin_headers={
             'Authorization': f'Api-Key {mixin_token}'
         }
+        mixin_body = mixin_body.model_dump()
         body=mixin_body
-        response = requests.request(method=mixin_method, url=mixin_url, headers=mixin_headers, data=body)
         
+        async with httpx.AsyncClient() as client:
+            response = await client.put(url=mixin_url, headers=mixin_headers, json=body, follow_redirects=True)
+        
+        if response.status_code >= 200 and response.status_code < 300:
+            try:
+                return {"status": "success", "result": response.json()}
+            except json.JSONDecodeError:
+                return {"status": "success", "result": None, "message": "No content returned"}
+        else:
+            return {
+                "status": "error",
+                "status_code": response.status_code,
+                "content": response.text,
+                "message": "Failed to update product on Mixin"
+            }
         if response.status_code == 200:
             response = response.json()
             
@@ -163,26 +193,18 @@ class ProductController:                # Need to assign real body data from sch
             return mixin
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
-    
+
     @staticmethod
-    async def update_basalam_product(token: str ,product_id: int, basalam_body: dict, photo: UploadFile = None):
+    async def update_basalam_product(token: str ,product_id: int, basalam_body: dict):
         method=patch
         url=f"https://core.basalam.com/v3/products/{product_id}"
         headers={
-            'Authorization': f'Bearer {token}'
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json'
         }
         body= basalam_body
         
-        files = {}
-        if photo: 
-            files['photo'] = (photo.filename, await photo.read(), photo.content_type)
-        
-        response = requests.request(method=method, url=url, data=body, headers=headers, files=files)
-        
-        return {"data": {  
-            "status_code": response.status_code,
-            "response": response.json()
-        }}
+        response = requests.request(method=method, url=url, json=body, headers=headers)
         
         if response.status_code == 200:
             basalam_body = response.json()
@@ -215,7 +237,7 @@ class ProductController:                # Need to assign real body data from sch
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting mixin product with given id. check if you are connected to mixin website")
     
-    async def is_equal(basalam_product_id: int, mixin_url: str, mixin_token: str , mixin_product_id: int):
+    async def is_equal(self, basalam_product_id: int, mixin_url: str, mixin_token: str , mixin_product_id: int):
         basalam_product = await self.get_basalam_product(basalam_product_id=basalam_product_id)
         mixin_product = await self.get_mixin_product(mixin_url=mixin_url, mixin_product_id=mixin_product_id, mixin_token=mixin_token)
         
