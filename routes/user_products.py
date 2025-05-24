@@ -66,11 +66,9 @@ async def get_basalam_product_by_product_id(
 
 @product_router.post("/create/mixin")
 async def create_mixin_product(
-    *,
-    session: AsyncSession = Depends(get_session),
     mixin_url: str,
-    mixin_token: str,
     data: MixinCreate,
+    mixin_token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.create_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_body=data)
     return result
