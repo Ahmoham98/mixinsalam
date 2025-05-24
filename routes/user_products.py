@@ -20,7 +20,11 @@ product_router = APIRouter()
 
 
 @product_router.get("/my-mixin-products")
-async def get_all_mixin_products(mixin_url: str, mixin_token: str, mixin_page: int = 1):
+async def get_all_mixin_products(
+    mixin_url: str,
+    mixin_page: int = 1,
+    mixin_token: str = Depends(access_token_bearer)
+):
     result = await ProductController.get_mixin_products(url=mixin_url, mixin_token=mixin_token, mixin_page=mixin_page)
     return result
 
@@ -46,8 +50,8 @@ async def check_if_is_equal(mixin_url: str, mixin_token: str, mixin_prodcut_id: 
 @product_router.get("/mixin/{mixin_product_id}")
 async def get_mixin_product_by_product_id(
     mixin_url: str,
-    mixin_token: str,
     mixin_product_id: int,
+    mixin_token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.get_mixin_product(mixin_url=mixin_url, mixin_product_id=mixin_product_id, mixin_token=mixin_token)
     return result
@@ -71,27 +75,41 @@ async def create_mixin_product(
     result = await ProductController.create_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_body=data)
     return result
 
+@product_router.post("/upload-image/{product_id}")
+async def upload_product_image(
+    product_id: int,
+    photo: UploadFile = File(...),
+    token: str = Depends(access_token_bearer)
+):
+    result = await ProductController.upload_product_image(token=token, product_id=product_id, photo=photo)
+    return result
+
 @product_router.post("/create/basalam/{vendor_id}")
 async def create_basalam_product(
     vendor_id: int,
-    data: BasalamCreate,
-    photo: UploadFile = File(None),
+    payload: BasalamCreate,                # <- This comes in as JSON
     token: str = Depends(access_token_bearer)
 ):
-    result = await ProductController.create_basalam_product(token=token ,vendor_id=vendor_id, basalam_body=data, photo=photo)
+    # Convert Pydantic model to dict, exclude nulls
+    body = payload.model_dump(exclude_none=True)
+    result = await ProductController.create_basalam_product(token, vendor_id, body)
     return result
 
-@product_router.put("/mixin/{mixin_product_id}")
-async def update_mixin_product(mixin_url: str, mixin_token: str, mixin_product_id: int, mixin_body: MixinCreate):
+@product_router.put("/update/mixin/{mixin_product_id}")
+async def update_mixin_product(
+    mixin_url: str,
+    mixin_product_id: int,
+    mixin_body: MixinCreate,
+    mixin_token: str = Depends(access_token_bearer)
+):
     result = await ProductController.update_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_product_id=mixin_product_id, mixin_body=mixin_body)
     return result
 
 @product_router.patch("/update/basalam/{product_id}")
 async def update_basalam_product(
     product_id: int,
-    photo: UploadFile = File(None),
     name: str = Form(...),
-    price: str = Form(...),
+    price: int = Form(...),
     token: str = Depends(access_token_bearer),
 ):
     basalam_body = {
@@ -99,8 +117,9 @@ async def update_basalam_product(
         "price": price
     }
     
-    result = await ProductController.update_basalam_product(token=token, product_id=product_id ,basalam_body=basalam_body, photo=photo)
+    result = await ProductController.update_basalam_product(token=token, product_id=product_id, basalam_body=basalam_body,)
     return result
+
 
 @product_router.delete("/")
 async def delete_product(mixin: bool, basalam: bool):
