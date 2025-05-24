@@ -115,9 +115,7 @@ class ProductController:                # Need to assign real body data from sch
         async with httpx.AsyncClient() as client:
             response = await client.post(url=mixin_url, headers=mixin_headers, json=body)
         
-        return response.status_code
-        
-        if response.status_code == 200:
+        if response.status_code == 201:
             response = response.json()
             
             mixin = response
@@ -169,23 +167,12 @@ class ProductController:                # Need to assign real body data from sch
             'Authorization': f'Api-Key {mixin_token}'
         }
         mixin_body = mixin_body.model_dump()
+        
         body=mixin_body
         
         async with httpx.AsyncClient() as client:
             response = await client.put(url=mixin_url, headers=mixin_headers, json=body, follow_redirects=True)
-        
-        if response.status_code >= 200 and response.status_code < 300:
-            try:
-                return {"status": "success", "result": response.json()}
-            except json.JSONDecodeError:
-                return {"status": "success", "result": None, "message": "No content returned"}
-        else:
-            return {
-                "status": "error",
-                "status_code": response.status_code,
-                "content": response.text,
-                "message": "Failed to update product on Mixin"
-            }
+            
         if response.status_code == 200:
             response = response.json()
             
