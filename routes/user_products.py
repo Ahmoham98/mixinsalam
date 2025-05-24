@@ -119,15 +119,12 @@ async def update_basalam_product(
     return result
 
 
-@product_router.delete("/")
-async def delete_product(mixin: bool, basalam: bool):
-    if mixin == True and basalam == True:
-        result = await ProductController.delete_mixin_product()
-        return {"message": "sorry, we don't have access to delete product from basalam from here! you have to delete it in basalam site itself :)"}
-    if mixin == True and basalam == False:
-        result = await ProductController.delete_mixin_product()
-        return result
-    if mixin == False and basalam == True:
-        return {"message": "sorry, we don't have access to delete product from basalam from here! you have to delete it in basalam site itself :)"}
-    else:
-        pass
+@product_router.delete("/delete/mixin/{mixin_product_id}")
+async def delete_mixin_product(
+    mixin_product_id: int,
+    mixin_url: str,
+    mixin_token: str = Depends(access_token_bearer)
+):
+    result = await ProductController.delete_mixin_product(mixin_product_id=mixin_product_id ,url=mixin_url , mixin_token=mixin_token)
+    return result
+

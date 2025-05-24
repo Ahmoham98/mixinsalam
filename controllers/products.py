@@ -122,8 +122,7 @@ class ProductController:                # Need to assign real body data from sch
             return mixin
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
-        
-        
+
     @staticmethod
     async def upload_product_image(token: str, product_id: int, photo: UploadFile):
         url = "https://core.basalam.com/v3/product-photos/upload"
@@ -166,20 +165,24 @@ class ProductController:                # Need to assign real body data from sch
         mixin_headers={
             'Authorization': f'Api-Key {mixin_token}'
         }
+        
         mixin_body = mixin_body.model_dump()
         
         body=mixin_body
         
+        
         async with httpx.AsyncClient() as client:
             response = await client.put(url=mixin_url, headers=mixin_headers, json=body, follow_redirects=True)
-            
-        if response.status_code == 200:
+        
+        
+        if response.status_code == 200 :
             response = response.json()
-            
-            mixin = response
-            return mixin
+            return response
+        if response.status_code == 404 :
+            response = response.json()
+            return response
         else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for updating mixin products. check if you are connected to mixin website")
 
     @staticmethod
     async def update_basalam_product(token: str ,product_id: int, basalam_body: dict):
@@ -215,7 +218,7 @@ class ProductController:                # Need to assign real body data from sch
         
         response = requests.request(method=method, url=url, headers=headers)
         
-        if response.status_code == 200:
+        if response.status_code == 204:
             return "success!"
         elif response.status_code == 403:
             raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
