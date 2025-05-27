@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from routes import basalam_client, mixin_client, user_products
-
+import uvicorn
 
 app = FastAPI()
 
@@ -15,3 +15,8 @@ app.include_router(user_products.product_router, prefix="/products", tags=["prod
 @app.get("/")
 async def get_root():
     return "You are very welcome :)"
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=7000, reload=True)
+
