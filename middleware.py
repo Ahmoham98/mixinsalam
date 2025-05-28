@@ -28,7 +28,7 @@ def register_middleware(app: FastAPI):
     
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://localhost:7000"],
+        allow_origins=["http://localhost:5173", "https://mixinsalam.liara.run"],
         allow_methods=["*"],
         allow_headers=["*"],
         allow_credentials= True,
