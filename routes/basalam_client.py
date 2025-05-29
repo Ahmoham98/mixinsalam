@@ -67,7 +67,7 @@ async def get_access_token(code: str, state: str):          #state is the random
                         f"""window.opener.postMessage({
                             access_token: f"{access_token}",
                             refresh_token: f"{refresh_token}"
-                        }, "https://mixinsalam.liara.run");
+                        }, "https://mixinsalam.liara.run"); 
                         
                         window.close();"""
                     }
