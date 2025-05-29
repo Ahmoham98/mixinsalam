@@ -50,14 +50,29 @@ async def get_access_token(code: str, state: str):          #state is the random
         basalam_user_access_token = basalam_user_access_token + " " + response["access_token"]
         basalam_user_refresh_token = basalam_user_access_token + " " + response["refresh_token"]
         
-        html_content = """
+        access_token = response["access_token"]
+        refresh_token = response["refresh_token"]
+        
+        html_content = f"""
+            <!DOCTYPE html>
             <html>
-                <head>
-                    <title>You Are successfully connected</title>
-                </head>
-                <body>
-                    <h1>You Are so close to finally connect to our application</h1>
-                </body>
+            <head>
+                <title>Basalam Connection</title>
+            </head>
+            <body>
+                <h1>you are successfully connected!</h1>
+                <script>
+                    // Send the tokens back to the opener window
+                    if (window.opener) {
+                        f"""window.opener.postMessage({
+                            access_token: f"{access_token}",
+                            refresh_token: f"{refresh_token}"
+                        }, "https://mixinsalam.liara.run");
+                        
+                        window.close();"""
+                    }
+                </script>
+            </body>
             </html>
             """
         
