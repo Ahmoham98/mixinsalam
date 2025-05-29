@@ -60,21 +60,20 @@ async def get_access_token(code: str, state: str):          #state is the random
                 <title>Basalam Connection</title>
             </head>
             <body>
-                <h1>you are successfully connected!</h1>
                 <script>
                     // Send the tokens back to the opener window
-                    if (window.opener) {
-                        f"""window.opener.postMessage({
-                            access_token: f"{access_token}",
-                            refresh_token: f"{refresh_token}"
-                        }, "https://mixinsalam.liara.run"); 
-                        
-                        window.close();"""
-                    }
+                    if (window.opener) {{
+                        window.opener.postMessage({{
+                            access_token: "{access_token}",
+                            refresh_token: "{refresh_token}"
+                        }}, "https://mixinsalam.liara.run");
+                        // Close this window
+                        window.close();
+                    }}
                 </script>
             </body>
             </html>
-            """
+        """
         
         return  HTMLResponse(content=html_content, status_code=200)
     
