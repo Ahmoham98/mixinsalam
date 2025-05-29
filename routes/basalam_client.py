@@ -56,11 +56,11 @@ async def get_access_token(code: str, state: str):          #state is the random
         }}
     
     elif response.status_code == 500:
-        return "we have problem with basalam sever to for getting access and refresh token"
+        return {"we have problem with basalam sever to for getting access and refresh token": {response.json()}}
     elif response.status_code == 401:
-        return "you have 401 not Authorized"
+        return {"you have 401 not Authorized": f"{response.json()}"}
     elif response.status_code == 403:
-        return "you have 403 forbidden"
+        return {"you have 403 forbidden": f"{response.json()}"}
     else:
         return "try for getting access token failed. try sending a valid request for granting access token"
     
