@@ -61,19 +61,35 @@ async def get_access_token(code: str, state: str):          #state is the random
             </head>
             <body>
                 <script>
-                    // Send the tokens back to the opener window
+                    console.log('Basalam callback page loaded');
+                    console.log('Window opener exists:', !!window.opener);
+                    
                     if (window.opener) {{
-                        window.opener.postMessage({{
+                        console.log('Attempting to send message to opener');
+                        const message = {{
                             access_token: "{access_token}",
                             refresh_token: "{refresh_token}"
-                        }}, "https://mixinsalam.liara.run");
-                        // Close this window
-                        window.close();
+                        }};
+                        console.log('Message to send:', message);
+                        
+                        try {{
+                            window.opener.postMessage(message, "*");  // Using "*" for testing
+                            console.log('Message sent successfully');
+                        }} catch (error) {{
+                            console.error('Error sending message:', error);
+                        }}
+                        
+                        // Close this window after a short delay
+                        setTimeout(() => {{
+                            window.close();
+                        }}, 1000);
+                    }} else {{
+                        console.error('No window.opener found');
                     }}
                 </script>
             </body>
             </html>
-        """
+            """
         
         return  HTMLResponse(content=html_content, status_code=200)
     
