@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.responses import HTMLResponse
 import requests
 import json
 from dependencies import AccessTokenBearer
@@ -49,11 +50,18 @@ async def get_access_token(code: str, state: str):          #state is the random
         basalam_user_access_token = basalam_user_access_token + " " + response["access_token"]
         basalam_user_refresh_token = basalam_user_access_token + " " + response["refresh_token"]
         
-        return  {"result": {
-            "message": "you are connected to basalam successfully :) ",
-            "spacer": "                                              ",
-            "response": response
-        }}
+        html_content = """
+            <html>
+                <head>
+                    <title>You Are successfully connected</title>
+                </head>
+                <body>
+                    <h1>You Are so close to finally connect to our application</h1>
+                </body>
+            </html>
+            """
+        
+        return  HTMLResponse(content=html_content, status_code=200)
     
     elif response.status_code == 500:
         return {"we have problem with basalam sever to for getting access and refresh token": {response.json()}}
