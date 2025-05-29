@@ -57,10 +57,15 @@ async def get_access_token(code: str, state: str):          #state is the random
     
     elif response.status_code == 500:
         return "we have problem with basalam sever to for getting access and refresh token"
+    elif response.status_code == 401:
+        return "you have 401 not Authorized"
+    elif response.status_code == 403:
+        return "you have 403 forbidden"
     else:
         return "try for getting access token failed. try sending a valid request for granting access token"
-    # get response and store necessary data
     
+    
+    # get response and store necessary data
 
 @basalam_client.get("/get-client-access-token")
 async def get_client_access_token():
