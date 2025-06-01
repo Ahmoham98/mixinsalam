@@ -120,9 +120,34 @@ class ProductController:                # Need to assign real body data from sch
             
             mixin = response
             return mixin
+        elif response.status_code == 401:
+            return {
+                "result": {
+                    "message": "you are 401 and you are not Authorized to have access",
+                    "response": response.json()
+                }
+            }
+        elif response.status_code == 403:
+            return {
+                "result": {
+                    "message": "you have 403 forbidden",
+                    "response": response.json()
+                }
+            }
+        elif response.status_code == 500:
+            return {
+                "result": {
+                    "message": "you have 500 internal server error from mixin server",
+                    "response": response.json()
+                }
+            }
         else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
-
+            return {
+                "result": {
+                    "message": "some error occurred, it may be from the request, check your request body or params",
+                    "response": response.json()
+                }
+            } 
     @staticmethod
     async def upload_product_image(token: str, product_id: int, photo: UploadFile):
         url = "https://core.basalam.com/v3/product-photos/upload"
