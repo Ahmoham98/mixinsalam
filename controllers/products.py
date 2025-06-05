@@ -148,6 +148,7 @@ class ProductController:                # Need to assign real body data from sch
                     "response": response.json()
                 }
             } 
+    
     @staticmethod
     async def upload_product_image(token: str, product_id: int, photo: UploadFile):
         url = "https://core.basalam.com/v3/product-photos/upload"
