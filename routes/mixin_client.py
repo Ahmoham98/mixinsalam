@@ -37,7 +37,3 @@ async def create_mixin_access_token_and_url(mixin_url: str, token: str):
         raise HTTPException(status_code=500, detail="some error occurred... could be from server or from our request.")
     else:
         raise HTTPException(status_code=404, detail="Invalid data. could be your url or your access token")
-
-@mixin_client.options("/")
-async def options_mixin_client():
-    return {"message": "OK"}
