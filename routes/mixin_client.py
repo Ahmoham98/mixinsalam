@@ -11,6 +11,7 @@ delete = "DELETE"
 
 @mixin_client.post("/")
 async def create_mixin_access_token_and_url(mixin_url: str, token: str):
+    print(f"Received POST request with mixin_url: {mixin_url} and token: {token}")
     method=get
     pk = 1
     url = f"https://{mixin_url}/api/management/v1/products/{pk}"
