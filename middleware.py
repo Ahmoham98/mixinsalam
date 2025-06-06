@@ -13,13 +13,6 @@ logger.disabled = True
 
 def register_middleware(app: FastAPI):
     
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["http://localhost:5173", "https://mixinsalamm.liara.run"],
-        allow_methods=["*"],
-        allow_headers=["*"],
-        allow_credentials= True,
-    )
     
     app.add_middleware(
         TrustedHostMiddleware,
