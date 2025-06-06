@@ -46,7 +46,8 @@ async def create_mixin_access_token_and_url(mixin_url: str, token: str):
             content=data,
             headers={
                 "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
-                "Access-Control-Allow-Credentials": "true"
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Cache-Control, Pragma, Expires"
             }
         )
         
