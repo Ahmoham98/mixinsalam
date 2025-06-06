@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import JSONResponse
 import requests
 
 mixin_client = APIRouter()
@@ -8,6 +9,18 @@ get = "GET"
 put = "PUT"
 patch = "PATCH"
 delete = "DELETE"
+
+@mixin_client.options("/")
+async def options_mixin_client():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "86400",
+        }
+    )
 
 @mixin_client.post("/")
 async def create_mixin_access_token_and_url(mixin_url: str, token: str):
