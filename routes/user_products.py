@@ -47,7 +47,7 @@ async def get_all_mixin_products(
     )
 
 @product_router.options("/my-basalam-products/{vendor_id}")
-async def options_mixin_products():
+async def options_basalam_products():
     return JSONResponse(
         content={},
         headers={
