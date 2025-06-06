@@ -30,7 +30,6 @@ async def options_mixin_products():
             "Access-Control-Max-Age": "3600",
         }
     )
-
 @product_router.get("/my-mixin-products")
 async def get_all_mixin_products(
     mixin_url: str,
@@ -47,6 +46,17 @@ async def get_all_mixin_products(
         }
     )
 
+@product_router.options("/my-basalam-products/{vendor_id}")
+async def options_mixin_products():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.get("/my-basalam-products/{vendor_id}")
 async def get_all_basalam_products(
     vendor_id: int,
@@ -54,7 +64,14 @@ async def get_all_basalam_products(
     token: str = Depends(access_token_bearer),
 ):
     result = await ProductController.get_basalam_products(token=token ,vendor_id=vendor_id ,basalam_page=basalam_page)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
 @product_router.get("/is-equal")
 async def check_if_is_equal(mixin_url: str, mixin_token: str, mixin_prodcut_id: int, basalam_token: str, basalam_product_id: int):
