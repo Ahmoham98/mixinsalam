@@ -15,7 +15,7 @@ async def options_mixin_client():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "*",
             "Access-Control-Max-Age": "86400",
