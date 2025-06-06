@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from dependencies import AccessTokenBearer
 
@@ -18,6 +19,17 @@ delete = "DELETE"
 
 product_router = APIRouter()
 
+@product_router.options("/my-mixin-products")
+async def options_mixin_products():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 
 @product_router.get("/my-mixin-products")
 async def get_all_mixin_products(
@@ -26,7 +38,14 @@ async def get_all_mixin_products(
     mixin_token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.get_mixin_products(url=mixin_url, mixin_token=mixin_token, mixin_page=mixin_page)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
 @product_router.get("/my-basalam-products/{vendor_id}")
 async def get_all_basalam_products(
