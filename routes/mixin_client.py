@@ -42,6 +42,13 @@ async def create_mixin_access_token_and_url(mixin_url: str, token: str):
                 "access_token": token
             }
         }
+        return JSONResponse(
+            content=data,
+            headers={
+                "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+                "Access-Control-Allow-Credentials": "true"
+            }
+        )
         
         return data
     elif response.status_code == 403:
