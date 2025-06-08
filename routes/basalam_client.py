@@ -137,18 +137,6 @@ async def get_client_access_token():
     else:
         raise HTTPException(status_code=404, detail="Can't send valid request for getting client access token!")
 
-
-@basalam_client.options("/me")
-async def options_basalam_me():
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Max-Age": "3600",
-        }
-    )
 #read user data from basalam v3/users/me
 @basalam_client.get("/me")
 async def get_my_basalam_data(token: str = Depends(access_token_bearer)):
@@ -168,28 +156,11 @@ async def get_my_basalam_data(token: str = Depends(access_token_bearer)):
     
     if response.status_code == 200:
         response = response.json()
-        return JSONResponse(
-            content=response,
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            }
-        )
+        return response
     
     else:
-        return JSONResponse(
-            content={
-                "message": "problem in fetch user data from basalam. request may have problem here... ",
-                "status_code": response.status_code,
-                "response": response.json()
-            },
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            }
-        )
+        response = response.json()
+        return response
 
 
 @basalam_client.get("/verify-my-token")
