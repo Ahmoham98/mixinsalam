@@ -19,7 +19,17 @@ delete = "DELETE"
 
 product_router = APIRouter()
 
-
+@product_router.options("/my-mixin-products")
+async def options_get_all_mixin_products():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.get("/my-mixin-products")
 async def get_all_mixin_products(
     mixin_url: str,
