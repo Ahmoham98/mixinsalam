@@ -137,6 +137,7 @@ async def get_client_access_token():
     else:
         raise HTTPException(status_code=404, detail="Can't send valid request for getting client access token!")
 
+
 #read user data from basalam v3/users/me
 @basalam_client.get("/me")
 async def get_my_basalam_data(token: str = Depends(access_token_bearer)):
@@ -156,11 +157,28 @@ async def get_my_basalam_data(token: str = Depends(access_token_bearer)):
     
     if response.status_code == 200:
         response = response.json()
-        return response
+        return JSONResponse(
+            content=response,
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            }
+        )
     
     else:
-        response = response.json()
-        return response
+        return JSONResponse(
+            content={
+                "message": "problem in fetch user data from basalam. request may have problem here... ",
+                "status_code": response.status_code,
+                "response": response.json()
+            },
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            }
+        )
 
 
 @basalam_client.get("/verify-my-token")
