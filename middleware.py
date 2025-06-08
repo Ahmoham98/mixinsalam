@@ -15,11 +15,10 @@ def register_middleware(app: FastAPI):
     
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Your frontend domain
-        allow_credentials=False,  # Must match frontend withCredentials
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_origins=["http://localhost:5173", "https://mixinsalamm.liara.run"],
+        allow_methods=["*"],
         allow_headers=["*"],
-        expose_headers=["*"]
+        allow_credentials= True,
     )
     
     app.add_middleware(
