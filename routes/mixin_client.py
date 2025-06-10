@@ -26,8 +26,7 @@ async def options_mixin_client():
 @mixin_client.post("/")
 async def create_mixin_access_token_and_url(mixin_url: str, token: str):
     method=get
-    pk = 1
-    url = f"https://{mixin_url}/api/management/v1/products/{pk}"
+    url = f"https://{mixin_url}/api/management/v1/products/"
     headers={
         'Authorization': f'Api-Key {token}'
     }
