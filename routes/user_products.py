@@ -24,10 +24,9 @@ async def options_get_all_mixin_products():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -41,7 +40,7 @@ async def get_all_mixin_products(
     return JSONResponse(
         content=result,
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
         }
@@ -52,10 +51,9 @@ async def options_get_all_basalam_products():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -69,7 +67,7 @@ async def get_all_basalam_products(
     return JSONResponse(
         content=result,
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
         }
@@ -90,10 +88,9 @@ async def options_get_one_mixin_product():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -107,7 +104,7 @@ async def get_mixin_product_by_product_id(
     return JSONResponse(
         content=result,
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
         }
@@ -118,10 +115,9 @@ async def options_get_one_basalam_product():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -134,7 +130,7 @@ async def get_basalam_product_by_product_id(
     return JSONResponse(
         content=result,
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
         }
@@ -174,10 +170,9 @@ async def options_update_mixin_product():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -192,7 +187,7 @@ async def update_mixin_product(
     return JSONResponse(
         content=result,
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
         }
@@ -203,10 +198,9 @@ async def options_update_basalam_product():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -226,12 +220,11 @@ async def update_basalam_product(
     return JSONResponse(
         content=result,
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
         }
     )
-
 
 @product_router.delete("/delete/mixin/{mixin_product_id}")
 async def delete_mixin_product(
