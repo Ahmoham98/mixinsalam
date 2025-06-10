@@ -27,7 +27,7 @@ async def options_get_all_mixin_products():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -55,7 +55,7 @@ async def options_get_all_basalam_products():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -93,7 +93,7 @@ async def options_get_one_mixin_product():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -121,7 +121,7 @@ async def options_get_one_basalam_product():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -177,7 +177,7 @@ async def options_update_mixin_product():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
@@ -206,7 +206,7 @@ async def options_update_basalam_product():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
+            "Access-Control-Allow-Credentials": "true",
             "Access-Control-Max-Age": "3600",
         }
     )
