@@ -18,7 +18,7 @@ async def options_mixin_client():
             "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Credentials": True,
             "Access-Control-Max-Age": "86400",
         }
     )
