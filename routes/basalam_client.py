@@ -143,10 +143,9 @@ async def options_basalam_me():
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
-            "Access-Control-Allow-Credentials": True,
             "Access-Control-Max-Age": "3600",
         }
     )
