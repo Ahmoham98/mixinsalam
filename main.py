@@ -14,8 +14,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Length", "X-Requested-With"],
+    max_age=3600,
 )
 
 app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags=["basalam_client"])
