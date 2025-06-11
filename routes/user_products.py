@@ -19,21 +19,7 @@ delete = "DELETE"
 
 product_router = APIRouter()
 
-@product_router.options("/my-mixin-products")
-async def options_get_all_mixin_products(
-    mixin_url: str = None,
-    mixin_page: int = None
-):
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Origin, X-Requested-With",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "3600",
-        }
-    )
+
 @product_router.get("/my-mixin-products")
 async def get_all_mixin_products(
     mixin_url: str,
