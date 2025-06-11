@@ -7,7 +7,9 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "https://mixinsalamm.liara.run"
+    "https://mixinsalamm.liara.run",  # Frontend URL
+    "https://mixinsalam.liara.run",   # Backend URL
+    "http://localhost:3000"
 ]
 
 app.add_middleware(
@@ -15,7 +17,17 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+        "Access-Control-Request-Method",
+        "Access-Control-Request-Headers",
+        "Access-Control-Allow-Origin",
+        "Access-Control-Allow-Credentials"
+    ],
     expose_headers=["Content-Length", "X-Requested-With"],
     max_age=3600,
 )

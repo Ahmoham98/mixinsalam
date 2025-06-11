@@ -19,7 +19,17 @@ delete = "DELETE"
 
 product_router = APIRouter()
 
-
+@product_router.options("/my-mixin-products")
+async def options_get_all_mixin_products():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.get("/my-mixin-products")
 async def get_all_mixin_products(
     mixin_url: str,
@@ -27,8 +37,26 @@ async def get_all_mixin_products(
     mixin_token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.get_mixin_products(url=mixin_url, mixin_token=mixin_token, mixin_page=mixin_page)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
+@product_router.options("/my-basalam-products/{vendor_id}")
+async def options_get_all_basalam_products():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.get("/my-basalam-products/{vendor_id}")
 async def get_all_basalam_products(
     vendor_id: int,
@@ -36,7 +64,14 @@ async def get_all_basalam_products(
     token: str = Depends(access_token_bearer),
 ):
     result = await ProductController.get_basalam_products(token=token ,vendor_id=vendor_id ,basalam_page=basalam_page)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
 @product_router.get("/is-equal")
 async def check_if_is_equal(mixin_url: str, mixin_token: str, mixin_prodcut_id: int, basalam_token: str, basalam_product_id: int):
@@ -48,6 +83,17 @@ async def check_if_is_equal(mixin_url: str, mixin_token: str, mixin_prodcut_id: 
         }
     }
 
+@product_router.options("/mixin/{mixin_product_id}")
+async def options_get_one_mixin_product():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.get("/mixin/{mixin_product_id}")
 async def get_mixin_product_by_product_id(
     mixin_url: str,
@@ -55,15 +101,40 @@ async def get_mixin_product_by_product_id(
     mixin_token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.get_mixin_product(mixin_url=mixin_url, mixin_product_id=mixin_product_id, mixin_token=mixin_token)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
+@product_router.options("/basalam/{basalam_product_id}")
+async def options_get_one_basalam_product():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.get("/basalam/{basalam_product_id}")
 async def get_basalam_product_by_product_id(
     basalam_product_id: int,
     token: str = Depends(access_token_bearer),
 ):
     result = await ProductController.get_basalam_product(token=token ,basalam_product_id=basalam_product_id)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
 @product_router.post("/create/mixin")
 async def create_mixin_product(
@@ -94,6 +165,17 @@ async def create_basalam_product(
     result = await ProductController.create_basalam_product(token, vendor_id, body)
     return result
 
+@product_router.options("/update/mixin/{mixin_product_id}")
+async def options_update_mixin_product():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.put("/update/mixin/{mixin_product_id}")
 async def update_mixin_product(
     mixin_url: str,
@@ -102,8 +184,26 @@ async def update_mixin_product(
     mixin_token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.update_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_product_id=mixin_product_id, mixin_body=mixin_body)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
+@product_router.options("/update/basalam/{product_id}")
+async def options_update_basalam_product():
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
 @product_router.patch("/update/basalam/{product_id}")
 async def update_basalam_product(
     product_id: int,
@@ -117,7 +217,14 @@ async def update_basalam_product(
     }
     
     result = await ProductController.update_basalam_product(token=token, product_id=product_id, basalam_body=basalam_body,)
-    return result
+    return JSONResponse(
+        content=result,
+        headers={
+            "Access-Control-Allow-Origin": "",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization",
+        }
+    )
 
 @product_router.delete("/delete/mixin/{mixin_product_id}")
 async def delete_mixin_product(
