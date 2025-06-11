@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.requests import Request
+from fastapi.responses import JSONResponse
 from routes import basalam_client, mixin_client, user_products
 import uvicorn
 
@@ -31,6 +33,20 @@ app.add_middleware(
     expose_headers=["Content-Length", "X-Requested-With"],
     max_age=3600,
 )
+
+@app.options("/{full_path:path}")
+async def options_handler(request: Request, full_path: str):
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Origin, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "3600",
+        }
+    )
+
 
 app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags=["basalam_client"])
 app.include_router(mixin_client.mixin_client, prefix="/mixin/client", tags=["mixin_client"])
