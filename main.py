@@ -1,10 +1,24 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from routes import basalam_client, mixin_client, user_products
 import uvicorn
 
 app = FastAPI()
 
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags=["basalam_client"])
 app.include_router(mixin_client.mixin_client, prefix="/mixin/client", tags=["mixin_client"])
