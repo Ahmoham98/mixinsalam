@@ -10,7 +10,6 @@ origins = [
     "https://mixinsalamm.liara.run",  # Frontend URL
     "https://mixinsalam.liara.run",   # Backend URL
     "http://localhost:3000",
-    "https://mixinsalam.liara.run/basalam/client/me"
 ]
 
 app.add_middleware(
