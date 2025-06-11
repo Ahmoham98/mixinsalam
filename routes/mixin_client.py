@@ -10,19 +10,6 @@ put = "PUT"
 patch = "PATCH"
 delete = "DELETE"
 
-@mixin_client.options("/")
-async def options_mixin_client():
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
-            "Access-Control-Allow-Methods": "POST, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Credentials": True,
-            "Access-Control-Max-Age": "86400",
-        }
-    )
-
 @mixin_client.post("/")
 async def create_mixin_access_token_and_url(mixin_url: str, token: str):
     method=get
@@ -41,14 +28,6 @@ async def create_mixin_access_token_and_url(mixin_url: str, token: str):
                 "access_token": token
             }
         }
-        return JSONResponse(
-            content=data,
-            headers={
-                "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
-                "Access-Control-Allow-Credentials": "true",
-                "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Cache-Control, Pragma, Expires"
-            }
-        )
         
         return data
     elif response.status_code == 403:
