@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
-from routes import basalam_client, mixin_client, user_products
+from routes import basalam_client, mixin_client, product_images, user_products
 import uvicorn
 
 app = FastAPI()
@@ -52,7 +52,7 @@ async def options_handler(request: Request, full_path: str):
 app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags=["basalam_client"])
 app.include_router(mixin_client.mixin_client, prefix="/mixin/client", tags=["mixin_client"])
 app.include_router(user_products.product_router, prefix="/products", tags=["products"])
-
+app.include_router(product_images.image_router, prefix="/images", tags=["product images"])
 
 
 @app.get("/")
