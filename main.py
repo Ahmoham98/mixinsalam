@@ -36,6 +36,10 @@ app.add_middleware(
 
 @app.options("/{full_path:path}")
 async def options_handler(request: Request, full_path: str):
+    # Skip the Basalam callback endpoint
+    if full_path == "basalam/client/get-user-access-token":
+        raise HTTPException(status_code=404, detail="Not Found")
+    
     if request.method != "OPTIONS":
         raise HTTPException(status_code=405, detail="Method Not Allowed")
     return JSONResponse(
