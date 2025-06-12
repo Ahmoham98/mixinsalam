@@ -129,6 +129,8 @@ app.add_middleware(
 @app.options("/{full_path:path}")
 async def options_handler(request: Request, full_path: str):
     
+    return "you are in general option handler"
+    
     if full_path == "/basalam/client/get-user-access-token":
         return await basalam_calback()
     
