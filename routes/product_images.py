@@ -12,8 +12,8 @@ delete = "DELETE"
 
 image_router = APIRouter()
 
-@image_router.get("/my-mixin_images")
-async def get_mixin_images(
+@image_router.get("/my-mixin_image")
+async def get_mixin_image(
     url: str,
     mixin_product_id: int,
     mixin_page: int = 1,
