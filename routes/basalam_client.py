@@ -21,7 +21,7 @@ patch = "PATCH"
 delete = "DELETE"
 
 
-@basalam_client.get("/get-user-access-token")
+@basalam_client.get("/get-user-access-token/")
 async def get_access_token(code: str, state: str):          #state is the random name you enter when creating client
                                                             #it's value in here is "management-test"
     if state != "management-test":
