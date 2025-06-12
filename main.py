@@ -36,6 +36,8 @@ app.add_middleware(
 
 @app.options("/{full_path:path}")
 async def options_handler(request: Request, full_path: str):
+    if request.method != "OPTIONS":
+        return None
     return JSONResponse(
         content={},
         headers={
