@@ -11,7 +11,7 @@ import requests
 
 app = FastAPI()
 
-@app.get("/basalam/client/get-user-access-token")
+@app.post("/basalam/client/get-user-access-token")
 async def get_access_token(code: str, state: str):          #state is the random name you enter when creating client
                                                             #it's value in here is "management-test"
     if state != "management-test":
