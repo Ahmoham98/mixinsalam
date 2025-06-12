@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
@@ -37,7 +37,7 @@ app.add_middleware(
 @app.options("/{full_path:path}")
 async def options_handler(request: Request, full_path: str):
     if request.method != "OPTIONS":
-        return None
+        raise HTTPException(status_code=405, detail="Method Not Allowed")
     return JSONResponse(
         content={},
         headers={
