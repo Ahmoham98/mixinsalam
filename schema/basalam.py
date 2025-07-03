@@ -1,6 +1,7 @@
 from typing import List
 from pydantic import BaseModel, Field
 
+
 class PropertyVariant(BaseModel):
     value: str
     property: str
