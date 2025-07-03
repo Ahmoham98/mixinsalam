@@ -43,7 +43,7 @@ class BasalamCreate(BaseModel):
     description: str | None  #This is actually an Enum or obj
     order: str | None   #This is actually an Enum or obj
     category_id: int
-    status: int
+    status: int | 2976
     preparation_days: int
     keywords: List[str] | None
     weight: str | None    #This is actually an Enum or obj
