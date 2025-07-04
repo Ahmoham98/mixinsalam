@@ -43,7 +43,7 @@ class BasalamCreate(BaseModel):
     description: str | None  
     order: str | None  
     category_id: int    #Required
-    status: int | 2976   
+    status: int    
     preparation_days: int   #Required
     keywords: List[str] | None
     weight: int   #Required
