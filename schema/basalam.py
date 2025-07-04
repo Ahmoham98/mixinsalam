@@ -37,19 +37,20 @@ class ProductDimentionSchema(BaseModel):
 
 class BasalamCreate(BaseModel):
     name: str  #Required
-    photos: List[int]  #Required
+    photo: int  #Required
+    photos: List[int] | None 
     video: str | None   
     brief: str | None  
     description: str | None  
     order: str | None  
     category_id: int    #Required
-    status: int    
+    status: int  #Required  
     preparation_days: int   #Required
     keywords: List[str] | None
     weight: int   #Required
     package_weight: int   #Required
     primary_price: int   #Required
-    stock: str   #Required
+    stock: int   #Required
     shipping_city_ids: List[int] | None 
     shipping_method_ids: List[int] | None 
     wholesale_prices: List[WholeSalePrice] | None
