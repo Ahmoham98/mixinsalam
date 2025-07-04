@@ -167,6 +167,27 @@ class ProductController:                # Need to assign real body data from sch
             "response": response.json()
         }
         
+
+    @staticmethod
+    async def upload_image(token: str, file: UploadFile):
+        url = "https://uploadio.basalam.com/v3/files"
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+
+        files = {
+            "file": (file.filename, await file.read(), file.content_type),
+            "file_type": (None, "product.photo")  # Notice this is form field, not file
+        }
+
+        # Use the synchronous `requests` library
+        response = requests.post(url, headers=headers, files=files)
+
+        return {
+            "status_code": response.status_code,
+            "response": response.json()
+        }
+
     @staticmethod
     async def create_basalam_product(token: str, vendor_id: int, body: dict):
         url = f"https://core.basalam.com/v4/vendors/{vendor_id}/products"
