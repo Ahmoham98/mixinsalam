@@ -36,30 +36,30 @@ class ProductDimentionSchema(BaseModel):
 
 
 class BasalamCreate(BaseModel):
-    name: str
-    photos: List[int] | None
-    video: str | None   #This is actually an Enum or obj
-    brief: str | None   #This is actually an Enum or obj
-    description: str | None  #This is actually an Enum or obj
-    order: str | None   #This is actually an Enum or obj
-    category_id: int
-    status: int | 2976
-    preparation_days: int
+    name: str  #Required
+    photos: List[int]  #Required
+    video: str | None   
+    brief: str | None  
+    description: str | None  
+    order: str | None  
+    category_id: int    #Required
+    status: int | 2976   
+    preparation_days: int   #Required
     keywords: List[str] | None
-    weight: str | None    #This is actually an Enum or obj
-    package_weight: int
-    price: str | None #This is actually an Enum or obj
-    stock: str | None #This is actually an Enum or obj
-    shipping_city_ids: List[int] | None #This is actually an Enum or obj
-    shipping_method_ids: List[int] | None #This is actually an Enum or obj
+    weight: int   #Required
+    package_weight: int   #Required
+    primary_price: int   #Required
+    stock: str   #Required
+    shipping_city_ids: List[int] | None 
+    shipping_method_ids: List[int] | None 
     wholesale_prices: List[WholeSalePrice] | None
     product_attribute: List[ProductAttributes] | None
-    virtual: str | None   #This is actually an Enum or obj
+    virtual: str | None   
     variants: List[ProductVariants] | None
     shipping_data: List[ProductShipingData] | None
-    unit_quantity: str | None  #This is actually an Enum or obj
-    unit_type: str | None  #This is actually an Enum or obj 
-    sku: str | None  #This is actually an Enum or obj
+    unit_quantity: str | None 
+    unit_type: str | None  
+    sku: str | None  
     packaging_dimensions: List[ProductDimentionSchema] | None
     is_wholesale: bool | None
 
