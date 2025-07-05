@@ -12,6 +12,8 @@ origins = [
     "https://mixinsalamm.liara.run",  # Frontend URL
     "https://mixinsalam.liara.run",   # Backend URL
     "http://localhost:3000",
+    "https://mixinsalamm.vercel.app",
+    "https://mixinsalam.onrender.com"
 ]
 
 app.add_middleware(
