@@ -42,7 +42,7 @@ async def options_handler(request: Request, full_path: str):
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "https://mixinsalamm.vercel.app",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Origin, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers",
             "Access-Control-Allow-Credentials": "true",
