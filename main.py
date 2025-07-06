@@ -9,8 +9,8 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
-    "https://mixinsalamm.liara.run",  # Frontend URL
-    "https://mixinsalam.liara.run",   # Backend URL
+    "https://mixinsalamm.vercel.app",  # Frontend URL
+    "https://mixinsalam.onrender.com",   # Backend URL
     "http://localhost:3000",
 ]
 
@@ -40,7 +40,7 @@ async def options_handler(request: Request, full_path: str):
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": "https://mixinsalamm.vercel.app",
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Origin, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers",
             "Access-Control-Allow-Credentials": "true",
