@@ -10,7 +10,7 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "https://mixinsalamm.vercel.app",  # Frontend URL
-    "https://mixinsalam.liara.run",   # Backend URL
+    "https://mixinsalam.onrender.com",   # Backend URL
     "http://localhost:3000",
 ]
 
