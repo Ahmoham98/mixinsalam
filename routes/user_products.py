@@ -74,13 +74,21 @@ async def create_mixin_product(
     result = await ProductController.create_mixin_product(url=mixin_url, mixin_token=mixin_token, mixin_body=data)
     return result
 
-@product_router.post("/upload-image/{product_id}")
+@product_router.post("/upload-product-image/{product_id}")
 async def upload_product_image(
     product_id: int,
     photo: UploadFile = File(...),
     token: str = Depends(access_token_bearer)
 ):
     result = await ProductController.upload_product_image(token=token, product_id=product_id, photo=photo)
+    return result
+
+@product_router.post("/upload-image")
+async def upload_image(
+    photo: UploadFile = File(...),
+    token: str = Depends(access_token_bearer)
+):
+    result = await ProductController.upload_image(token=token, file=photo)
     return result
 
 @product_router.post("/create/basalam/{vendor_id}")
