@@ -16,7 +16,7 @@ def register_middleware(app: FastAPI):
     
     origins = [
         "http://localhost:5173",
-        "https://mixinsalam-frontend-onxn7bqy2-bardyas-projects.vercel.app"
+        "https://mixinsalam-frontend.vercel.app"
     ]
     
     app.add_middleware(
