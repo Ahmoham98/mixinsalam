@@ -59,7 +59,7 @@ app.include_router(product_images.image_router, prefix="/images", tags=["product
 
 @app.get("/")
 async def get_root():
-    return "You are very welcome :)"
+    return "You are very welcome !!!"
 
 
 if __name__ == "__main__":
