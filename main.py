@@ -7,6 +7,7 @@ import uvicorn
 
 app = FastAPI()
 
+#some comment
 origins = [
     "http://localhost:5173",
     "https://mixinsalamm.liara.run",  # Frontend URL
