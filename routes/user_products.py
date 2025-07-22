@@ -136,3 +136,9 @@ async def delete_mixin_product(
     result = await ProductController.delete_mixin_product(mixin_product_id=mixin_product_id ,url=mixin_url , mixin_token=mixin_token)
     return result
 
+@product_router.get("/category-detection/")
+async def get_category_prediction(
+    title: str,
+):
+    result = await ProductController.predict_category(title=title)
+    return result
