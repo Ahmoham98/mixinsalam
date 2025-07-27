@@ -167,7 +167,7 @@ class ProductController:                # Need to assign real body data from sch
             "response": response.json()
         }
         
-
+    # a random comment for test some stuf
     @staticmethod
     async def upload_image(token: str, file: UploadFile):
         url = "https://uploadio.basalam.com/v3/files"
