@@ -175,13 +175,18 @@ class ProductController:                # Need to assign real body data from sch
             "Authorization": f"Bearer {token}"
         }
 
-        files = {
-            "file": (file.filename, await file.read(), file.content_type),
-            "file_type": (None, "product.photo")  # Notice this is form field, not file
-        }
-
-        # Use the synchronous `requests` library
-        response = requests.post(url, headers=headers, files=files)
+        file_content = await file.read() 
+        
+        async with httpx.AsyncClient() as client:
+            files_payload = {
+                "file": (file.filename, file_content, file.content_type), 
+                "file_type": (None, "product.photo")
+            }
+            
+            response = await client.post(url, headers=headers, files=files_payload)
+            response.raise_for_status() 
+            
+            print(f"Response from Basalam upload API: {response.status_code} - {response.json()}")
 
         return {
             "status_code": response.status_code,
