@@ -289,3 +289,23 @@ class ProductController:                # Need to assign real body data from sch
             return False
         else:
             return True
+
+    async def predict_category(title: str):
+        method = get
+        url = "https://categorydetection.basalam.com/category_detection/api_v1.0/predict/"
+        params = {
+            "title": title
+        }
+        headers = {
+            'Accept': 'application/json'
+        }
+        
+        response = requests.request(method=method, url=url, headers=headers, params=params)
+        
+        if response.status_code == 200:
+            response = response.json()
+            
+            category_prediction = response
+            return category_prediction
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for category prediction. check if you are connected to the category detection service")
