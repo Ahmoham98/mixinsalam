@@ -33,9 +33,9 @@ async def get_access_token(code: str, state: str):          #state is the random
     url= "https://auth.basalam.com/oauth/token"         #AOuth2 request for getting access-token from basalam
     body={
         "grant_type" : "authorization_code",
-        "client_id" : Config.ID,
+        "client_id" : Config.BASALAM_CLIENT_ID,
         "client_secret" : Config.BASALAM_SECRET,
-        "redirect_uri" : Config.REDIRECT_URI,
+        "redirect_uri" : Config.BASALAM_REDIRECT_URI,
         "code" : f"{code}"
     }
     
@@ -111,7 +111,7 @@ async def get_client_access_token():
     method=post
     url='https://auth.basalam.com/oauth/token'
     body={
-        "client_id" : 1083,
+        "client_id" : Config.BASALAM_CLIENT_ID,
         "client_secret" : Config.BASALAM_SECRET,
         "grant_type" : "client_credentials",
         "scope": "*"
