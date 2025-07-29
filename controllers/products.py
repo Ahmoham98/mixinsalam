@@ -201,7 +201,7 @@ class ProductController:                # Need to assign real body data from sch
         }
         files = {
         "file": (filename, file_bytes, content_type),
-        "file_type": (None, content_type)
+        "file_type": (None, "product.photo")
         }
 
         async with httpx.AsyncClient() as client:
