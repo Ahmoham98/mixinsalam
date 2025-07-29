@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File
+from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from dependencies import AccessTokenBearer
@@ -7,6 +7,11 @@ from database import get_session
 from schema.mixin import MixinCreate, MixinAddToDatabase
 from schema.basalam import BasalamCreate, BaslaamUpdate
 from controllers.products import ProductController
+
+
+import httpx
+import mimetypes
+from io import BytesIO
 
 access_token_bearer = AccessTokenBearer()
 
@@ -90,6 +95,51 @@ async def upload_image(
 ):
     result = await ProductController.upload_image(token=token, file=photo)
     return result
+
+@product_router.post("/sync-image")
+async def sync_image(
+    image_url: str = Query(...),
+    token: str = Depends(access_token_bearer)
+):
+    try:
+        #handling the url and convert it to a file
+        
+        #downloads the image using image_url
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(image_url)
+        #checking status code
+        if resp.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to download image")
+        #make sure we are receiving image
+        content_type = resp.headers.get("content-type", "")
+        if not content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="URL is not an image")
+
+        image_data = resp.content
+
+        #creating postfix for the file name
+        extension = mimetypes.guess_extension(content_type) or ".jpg"
+        filename = "image" + extension
+
+        # convert the file to binary
+        file_like = BytesIO(image_data)
+        
+        #send the file to the basalam endpoint
+
+        # send file to basalam endpoint
+        result = await ProductController.upload_image_from_bytes(
+            token=token,
+            file_bytes=file_like,
+            filename=filename,
+            content_type=content_type
+        )
+
+        return result
+
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Network error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @product_router.post("/create/basalam/{vendor_id}")
 async def create_basalam_product(

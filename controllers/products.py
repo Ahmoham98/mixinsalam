@@ -192,6 +192,24 @@ class ProductController:                # Need to assign real body data from sch
             "status_code": response.status_code,
             "response": response.json()
         }
+    
+    @staticmethod
+    async def upload_image_from_bytes(token: str, file_bytes, filename: str, content_type: str):
+        url = "https://uploadio.basalam.com/v3/files"
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        files = {
+            "photo": (filename, file_bytes, content_type)
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(url, files=files, headers=headers)
+
+        if response.status_code != 200:
+            raise Exception(f"Upload failed: {response.status_code}, {response.text}")
+
+        return response.json()
 
     @staticmethod
     async def create_basalam_product(token: str, vendor_id: int, body: dict):
