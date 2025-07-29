@@ -200,7 +200,8 @@ class ProductController:                # Need to assign real body data from sch
             "Authorization": f"Bearer {token}"
         }
         files = {
-            "photo": (filename, file_bytes, content_type)
+        "file": (filename, file_bytes, content_type),
+        "file_type": (None, content_type)
         }
 
         async with httpx.AsyncClient() as client:
