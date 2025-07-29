@@ -111,7 +111,7 @@ async def get_client_access_token():
     method=post
     url='https://auth.basalam.com/oauth/token'
     body={
-        "client_id" : 1083,
+        "client_id" : Config.ID,
         "client_secret" : Config.BASALAM_SECRET,
         "grant_type" : "client_credentials",
         "scope": "*"

@@ -16,6 +16,7 @@ def register_middleware(app: FastAPI):
     
     origins = [
         "http://localhost:5173",
+        "http://myapp.test:5173",
         "https://mixinsalamm.liara.run"
     ]
     

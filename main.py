@@ -10,6 +10,7 @@ app = FastAPI()
 #some comment
 origins = [
     "http://localhost:5173",
+    "http://myapp.test:5173"
     "https://mixinsalamm.liara.run",  # Frontend URL
     "https://mixinsalam.liara.run",   # Backend URL
     "http://localhost:3000",
@@ -42,7 +43,7 @@ async def options_handler(request: Request, full_path: str):
     return JSONResponse(
         content={},
         headers={
-            "Access-Control-Allow-Origin": "https://mixinsalamm.liara.run",
+            "Access-Control-Allow-Origin": origins,
             "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
             "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Origin, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers",
             "Access-Control-Allow-Credentials": "true",
@@ -63,5 +64,5 @@ async def get_root():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=7000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
 
