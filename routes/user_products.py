@@ -1,4 +1,3 @@
-import logging
 from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -14,9 +13,6 @@ import httpx
 import mimetypes
 from io import BytesIO
 
-
-logger = logging.getLogger("sync_image")
-logger.setLevel(logging.INFO)
 
 access_token_bearer = AccessTokenBearer()
 
@@ -114,12 +110,9 @@ async def sync_image(
         
         extension = mimetypes.guess_extension(content_type) or ".jpg"
         filename = "image" + extension
-        logger.info("conventing image to binary file")
         
         file_like = BytesIO(image_data)         # convert the file to binary
         
-        
-        logger.info("starting uploading image on basalam platform")
         
         result = await ProductController.upload_image_from_bytes(           # send file to basalam endpoint
             token=token,
@@ -127,14 +120,11 @@ async def sync_image(
             filename=filename,
             content_type=content_type
         )
-        logger.info("file uploaded successfully...")
         return result
 
     except httpx.RequestError as e:
-        logger.error(f"Network error when downloading image: {e}")
         raise HTTPException(status_code=502, detail=f"Network error: {str(e)}")
     except Exception as e:
-        logger.exception(f"Unexpected error during sync: {e}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @product_router.post("/create/basalam/{vendor_id}")

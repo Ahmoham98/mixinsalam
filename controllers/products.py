@@ -7,7 +7,6 @@ from fastapi import HTTPException, status, UploadFile
 import requests
 import json
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 post = "POST"
 get = "GET"
