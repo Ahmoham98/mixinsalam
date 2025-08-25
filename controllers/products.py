@@ -1,5 +1,4 @@
 
-import logging
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from schema.mixin import MixinAddToDatabase, MixinCreate
 from schema.basalam import BasalamCreate, BaslaamUpdate
@@ -9,9 +8,6 @@ import requests
 import json
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-
-logger = logging.getLogger("upload_image_from_bytes")
-logger.setLevel(logging.INFO)
 
 post = "POST"
 get = "GET"
@@ -180,7 +176,6 @@ class ProductController:                # Need to assign real body data from sch
         }
 
         file_content = await file.read() 
-        logger.info("processing uploading file request")
         async with httpx.AsyncClient() as client:
             files_payload = {
                 "file": (file.filename, file_content, file.content_type), 
@@ -207,7 +202,6 @@ class ProductController:                # Need to assign real body data from sch
         }
 
         try:
-            logger.info(f"sending uploading request for: {filename}")
             async with httpx.AsyncClient() as client:
                 response = await client.post(url, files=files, headers=headers)
 
@@ -216,7 +210,6 @@ class ProductController:                # Need to assign real body data from sch
 
             return response.json()
         except Exception as e:
-            logger.exception(f"Upload error {str(e)}")
             raise
             
     @staticmethod
@@ -344,18 +337,14 @@ class ProductController:                # Need to assign real body data from sch
         retry=retry_if_exception_type(httpx.RequestError)   # retry when network error
     )
     async def download_image_with_retry(image_url: str) -> tuple[bytes, str]:
-        logger.info(f"Downloading image from: {image_url}")
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.get(image_url)
 
         if response.status_code != 200:
-            logger.warning(f"Download failed (status {response.status_code}): {image_url}")
             raise HTTPException(status_code=400, detail="Failed to download image")
 
         content_type = response.headers.get("content-type", "")
         if not content_type.startswith("image/"):
-            logger.warning(f"Invalid content type ({content_type}) from {image_url}")
             raise HTTPException(status_code=400, detail="URL is not an image")
 
-        logger.info("Image downloaded and validated successfully.")
         return response.content, content_type
