@@ -235,7 +235,10 @@ class ProductController:                # Need to assign real body data from sch
         elif response.status_code == 403:
             raise HTTPException(403, "Forbidden – check your token or permissions")
         else:
-            raise HTTPException(response.status_code, response.text)
+            return {
+            "status_code": response.status_code,
+            "response": response.json()
+        }
     
     async def update_mixin_product(url: str, mixin_token: str, mixin_product_id: int, mixin_body: MixinCreate):
         pk=mixin_product_id
