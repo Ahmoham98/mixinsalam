@@ -1,4 +1,5 @@
 
+import logging
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from schema.mixin import MixinAddToDatabase, MixinCreate
 from schema.basalam import BasalamCreate, BaslaamUpdate
@@ -7,6 +8,10 @@ from fastapi import HTTPException, status, UploadFile
 import requests
 import json
 import httpx
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
+logger = logging.getLogger("upload_image_from_bytes")
+logger.setLevel(logging.INFO)
 
 post = "POST"
 get = "GET"
@@ -166,8 +171,7 @@ class ProductController:                # Need to assign real body data from sch
             "status_code": response.status_code,
             "response": response.json()
         }
-        
-    # a random comment for test some stuf
+    
     @staticmethod
     async def upload_image(token: str, file: UploadFile):
         url = "https://uploadio.basalam.com/v3/files"
@@ -176,7 +180,7 @@ class ProductController:                # Need to assign real body data from sch
         }
 
         file_content = await file.read() 
-        
+        logger.info("processing uploading file request")
         async with httpx.AsyncClient() as client:
             files_payload = {
                 "file": (file.filename, file_content, file.content_type), 
@@ -186,8 +190,6 @@ class ProductController:                # Need to assign real body data from sch
             response = await client.post(url, headers=headers, files=files_payload)
             response.raise_for_status() 
             
-            print(f"Response from Basalam upload API: {response.status_code} - {response.json()}")
-
         return {
             "status_code": response.status_code,
             "response": response.json()
@@ -204,14 +206,19 @@ class ProductController:                # Need to assign real body data from sch
         "file_type": (None, "product.photo")
         }
 
-        async with httpx.AsyncClient() as client:
-            response = await client.post(url, files=files, headers=headers)
+        try:
+            logger.info(f"sending uploading request for: {filename}")
+            async with httpx.AsyncClient() as client:
+                response = await client.post(url, files=files, headers=headers)
 
-        if response.status_code != 200:
-            raise Exception(f"Upload failed: {response.status_code}, {response.text}")
+            if response.status_code != 200:
+                raise Exception(f"Upload failed: {response.status_code}, {response.text}")
 
-        return response.json()
-
+            return response.json()
+        except Exception as e:
+            logger.exception(f"Upload error {str(e)}")
+            raise
+            
     @staticmethod
     async def create_basalam_product(token: str, vendor_id: int, body: dict):
         url = f"https://core.basalam.com/v4/vendors/{vendor_id}/products"
@@ -254,7 +261,6 @@ class ProductController:                # Need to assign real body data from sch
             return response
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for updating mixin products. check if you are connected to mixin website")
-
     @staticmethod
     async def update_basalam_product(token: str ,product_id: int, basalam_body: dict):
         method=patch
@@ -328,3 +334,25 @@ class ProductController:                # Need to assign real body data from sch
             return category_prediction
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for category prediction. check if you are connected to the category detection service")
+        
+    @retry(
+        stop=stop_after_attempt(3),                     # try three more time
+        wait=wait_exponential(multiplier=1, min=1, max=5),  # some delay between retries
+        retry=retry_if_exception_type(httpx.RequestError)   # retry when network error
+    )
+    async def download_image_with_retry(image_url: str) -> tuple[bytes, str]:
+        logger.info(f"Downloading image from: {image_url}")
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.get(image_url)
+
+        if response.status_code != 200:
+            logger.warning(f"Download failed (status {response.status_code}): {image_url}")
+            raise HTTPException(status_code=400, detail="Failed to download image")
+
+        content_type = response.headers.get("content-type", "")
+        if not content_type.startswith("image/"):
+            logger.warning(f"Invalid content type ({content_type}) from {image_url}")
+            raise HTTPException(status_code=400, detail="URL is not an image")
+
+        logger.info("Image downloaded and validated successfully.")
+        return response.content, content_type

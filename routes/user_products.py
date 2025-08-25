@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File, Query
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -12,6 +13,10 @@ from controllers.products import ProductController
 import httpx
 import mimetypes
 from io import BytesIO
+
+
+logger = logging.getLogger("sync_image")
+logger.setLevel(logging.INFO)
 
 access_token_bearer = AccessTokenBearer()
 
@@ -96,6 +101,7 @@ async def upload_image(
     result = await ProductController.upload_image(token=token, file=photo)
     return result
 
+
 @product_router.post("/sync-image")
 async def sync_image(
     image_url: str = Query(...),
@@ -104,41 +110,31 @@ async def sync_image(
     try:
         #handling the url and convert it to a file
         
-        #downloads the image using image_url
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(image_url)
-        #checking status code
-        if resp.status_code != 200:
-            raise HTTPException(status_code=400, detail="Failed to download image")
-        #make sure we are receiving image
-        content_type = resp.headers.get("content-type", "")
-        if not content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="URL is not an image")
-
-        image_data = resp.content
-
-        #creating postfix for the file name
+        image_data, content_type = await ProductController.download_image_with_retry(image_url)
+        
         extension = mimetypes.guess_extension(content_type) or ".jpg"
         filename = "image" + extension
-
-        # convert the file to binary
-        file_like = BytesIO(image_data)
+        logger.info("conventing image to binary file")
         
-        #send the file to the basalam endpoint
-
-        # send file to basalam endpoint
-        result = await ProductController.upload_image_from_bytes(
+        file_like = BytesIO(image_data)         # convert the file to binary
+        
+        
+        logger.info("starting uploading image on basalam platform")
+        
+        result = await ProductController.upload_image_from_bytes(           # send file to basalam endpoint
             token=token,
             file_bytes=file_like,
             filename=filename,
             content_type=content_type
         )
-
+        logger.info("file uploaded successfully...")
         return result
 
     except httpx.RequestError as e:
+        logger.error(f"Network error when downloading image: {e}")
         raise HTTPException(status_code=502, detail=f"Network error: {str(e)}")
     except Exception as e:
+        logger.exception(f"Unexpected error during sync: {e}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @product_router.post("/create/basalam/{vendor_id}")
