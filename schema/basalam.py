@@ -38,7 +38,7 @@ class ProductDimentionSchema(BaseModel):
 class BasalamCreate(BaseModel):
     name: str
     photo: int
-    phots: list[int]
+    photos: list[int]
     brief: str
     description: str
     preparation_days: int
