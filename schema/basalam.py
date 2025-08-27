@@ -36,33 +36,20 @@ class ProductDimentionSchema(BaseModel):
 
 
 class BasalamCreate(BaseModel):
-    name: str  #Required
-    photo: int  #Required
-    category_id: int    #Required
-    status: int  #Required  
-    preparation_days: int   #Required
-    weight: int   #Required
-    package_weight: int   #Required
-    primary_price: int   #Required
-    stock: int   #Required
-    photos: List[int] | None 
-    video: str | None   
-    brief: str | None  
-    description: str | None  
-    order: str | None  
-    keywords: List[str] | None
-    shipping_city_ids: List[int] | None 
-    shipping_method_ids: List[int] | None 
-    wholesale_prices: List[WholeSalePrice] | None
-    product_attribute: List[ProductAttributes] | None
-    virtual: str | None   
-    variants: List[ProductVariants] | None
-    shipping_data: List[ProductShipingData] | None
-    unit_quantity: str | None 
-    unit_type: str | None  
-    sku: str | None  
-    packaging_dimensions: List[ProductDimentionSchema] | None
-    is_wholesale: bool | None
+    name: str
+    photo: int
+    phots: list[int]
+    brief: str
+    description: str
+    preparation_days: int
+    category_id: int
+    weight: int
+    package_weight: int
+    primary_price: int
+    stock: int
+    sku: str
+    is_wholesale: bool
+    status: int
 
 class UpdateVariants:
     id: int
