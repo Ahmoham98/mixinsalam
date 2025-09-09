@@ -178,3 +178,12 @@ async def get_category_prediction(
 ):
     result = await ProductController.predict_category(title=title)
     return result
+
+
+@product_router.get("/category-unit-type")
+async def get_category_unit_type(
+    category_id: int,
+    token: str = Depends(access_token_bearer),
+):
+    result = await ProductController.get_category_unit_type(category_id=category_id, token=token)
+    return result

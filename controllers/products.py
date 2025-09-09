@@ -348,3 +348,17 @@ class ProductController:                # Need to assign real body data from sch
             raise HTTPException(status_code=400, detail="URL is not an image")
 
         return response.content, content_type
+
+    async def get_category_unit_type(category_id: int, token: str):
+        method = get
+        url = f"https://core.basalam.com/v3/categories/{category_id}"
+        headers = {
+            'Authorization': f'Bearer {token}'
+        }
+        
+        response = requests.request(method=method, url=url, headers=headers)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return response.json()
