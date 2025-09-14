@@ -154,12 +154,16 @@ async def update_basalam_product(
     name: str = Form(...),
     price: int = Form(...),
     description: str = Form(...),
+    stock: int = Form(...),
+    weight: int = Form(...),
     token: str = Depends(access_token_bearer),
 ):
     basalam_body = {
         "name": name,
         "price": price,
-        "description": description
+        "description": description,
+        "stock": stock,
+        "weight": weight
     }
     
     result = await ProductController.update_basalam_product(token=token, product_id=product_id, basalam_body=basalam_body,)
