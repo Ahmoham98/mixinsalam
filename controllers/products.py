@@ -279,7 +279,7 @@ class ProductController:                # Need to assign real body data from sch
         elif response.status_code == 500:
             raise HTTPException(status_code=404, detail="500 Internal server error occurred. It seems we have problem in request or some issue or problem from the server. check the request and parameters again for future request.")
         else:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting basalam product with given id. check if you are connected to basalam website")
+            return response.json()
     
     async def delete_mixin_product(mixin_product_id: int, url: str, mixin_token: str ):
         method=delete
