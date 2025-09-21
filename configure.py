@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     NAME: str
     BASALAM_SECRET: str
     GOOGLE_SERVICE_ACCOUNT_JSON: str
+    SHEET_NAME: str
     
     model_config = SettingsConfigDict(
         env_file=".env",

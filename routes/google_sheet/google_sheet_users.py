@@ -18,7 +18,7 @@ from dependencies import AccessTokenBearer
 scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(service_account_info, scope)
 client = gspread.authorize(creds)
-sheet = client.open(Config.SHEET_NAME).users
+sheet = client.open(Config.SHEET_NAME).worksheet("users")
 
 access_token_bearer = AccessTokenBearer()
 
