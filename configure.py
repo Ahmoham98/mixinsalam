@@ -1,3 +1,4 @@
+import json
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,6 +10,7 @@ class Settings(BaseSettings):
     REDIRECT_URI: str
     NAME: str
     BASALAM_SECRET: str
+    GOOGLE_SERVICE_ACCOUNT_JSON: str
     
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -17,3 +19,6 @@ class Settings(BaseSettings):
     
 
 Config = Settings()
+
+# parse into dict when needed 
+service_account_info = json.loads(Config.GOOGLE_SERVICE_ACCOUNT_JSON)
