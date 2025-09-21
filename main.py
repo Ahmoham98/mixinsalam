@@ -57,7 +57,7 @@ app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags
 app.include_router(mixin_client.mixin_client, prefix="/mixin/client", tags=["mixin_client"])
 app.include_router(user_products.product_router, prefix="/products", tags=["products"])
 app.include_router(product_images.image_router, prefix="/images", tags=["product images"])
-app.include_router(google_sheet_users.users_google_sheet, prefix="/google-sheet", tags=["google-sheet"])
+app.include_router(google_sheet_users.users_google_sheet, prefix="/googlesheet", tags=["google-sheet"])
 
 
 @app.get("/")
