@@ -28,7 +28,7 @@ users_google_sheet = APIRouter()
 
 # pydantic mdoel needed
 
-users_google_sheet.post("/user/")
+users_google_sheet.post("/create_user/")
 async def create_new_user(
     user: Users,
     token: str = Depends(access_token_bearer)
@@ -36,7 +36,7 @@ async def create_new_user(
     result = await UsersOperationController.craete_new_user_in_google_sheet(user)
     return f"user is successfully created! {result}"
 
-users_google_sheet.get("/user/")
+users_google_sheet.get("/get_users/")
 async def get_all_users(
     token: str = Depends(access_token_bearer)
 ):
