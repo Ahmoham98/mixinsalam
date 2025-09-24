@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends
 
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-from configure import Config, service_account_info
+from google_sheet_configuration import spreadsheet
 # schema importation
 from schema.google_sheet.google_sheet_users import Users
 # controller importation
@@ -10,15 +8,8 @@ from controllers.google_sheet.google_sheet_users import UsersOperationController
 
 from dependencies import AccessTokenBearer
 
-
-
-
-
-# setting up google sheet
-scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_dict(service_account_info, scope)
-client = gspread.authorize(creds)
-sheet = client.open(Config.SHEET_NAME).worksheet("users")
+# imporitng users sheet from googlesheet connection in google_sheet_configuration.py file
+sheet = spreadsheet.worksheet("users")
 
 access_token_bearer = AccessTokenBearer()
 

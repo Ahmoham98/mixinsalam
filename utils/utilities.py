@@ -62,3 +62,9 @@ def decode_url_safe_token(token: str):
     except Exception as e:
         logging.error(str(e))
 
+async def get_next_id(sheet):
+    records = sheet.get_all_records()  # returns a list of dicts
+    if not records:  # if sheet is empty
+        return 1
+    last_id = records[-1]["id"]
+    return last_id + 1
