@@ -25,7 +25,7 @@ async def list_subscriptions(user_id: int = Depends(get_current_user)):
 @subscriptions_router.get("/current")
 async def get_current_subscription(user: Users = Depends(get_current_user)):
     user_id = user["id"]
-    subs = SubscriptionsController.get_all_subscriptions()
+    subs = await SubscriptionsController.get_all_subscriptions()
     for sub in subs:
         
         if sub["user_id"] == user_id and sub["status"] == "active":
