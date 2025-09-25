@@ -24,8 +24,12 @@ async def create_new_user(
     user: Users,
     token: str = Depends(access_token_bearer)
 ):
+    users = await UsersOperationController.get_all_users_from_google_sheet()
+    for u in users:
+        if u.get("mixin_access_token") == user.mixin_access_token or u.get("basalam_access_token") == user.basalam_access_token:
+            return {"message": "User already exists"}
     result = await UsersOperationController.craete_new_user_in_google_sheet(user)
-    return f"user is successfully created! {result}"
+    return {"message": f"User is successfully created! {result}"}
 
 @users_google_sheet.get("/user/")
 async def get_all_users(
