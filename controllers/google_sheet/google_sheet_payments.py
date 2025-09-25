@@ -1,5 +1,8 @@
+from fastapi import Depends
+from schema.google_sheet.google_sheet_users import Users
 from schema.google_sheet.payments import Payment
 from google_sheet_configuration import spreadsheet
+from utils import utilities
 
 class PaymentsController:
     sheet = spreadsheet.worksheet("payments")
@@ -18,9 +21,12 @@ class PaymentsController:
         return None
 
     @staticmethod
-    async def create_payment(payment: Payment):
+    async def create_payment(payment: Payment, user: Users):
+        sheet = PaymentsController.sheet
+        next_id = await utilities.get_next_id(sheet)
+        user_id = user["id"]
         PaymentsController.sheet.append_row([
-            payment.id, payment.user_id, payment.subscription_id, payment.amount, payment.currency, payment.status,
+            next_id, user_id, payment.subscription_id, payment.amount, payment.currency, payment.status,
             payment.payment_provider, payment.provider_payment_id, payment.invoice_url, payment.created_at, payment.updated_at
         ])
         return {"message": "Payment created successfully"}
