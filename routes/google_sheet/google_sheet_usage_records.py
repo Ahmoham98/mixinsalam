@@ -20,7 +20,8 @@ async def get_current_user(token: str = Depends(access_token_bearer)):
 async def get_usage(user: Users = Depends(get_current_user)):
     user_id = user["id"]
     records = await UsageRecordsController.get_all_usage_records()
-    return records
+    user_usage = [r for r in records if int(r["user_id"]) == user_id]
+    return user_usage
 
 @usage_router.post("/increment")
 async def increment_usage(record: UsageRecord, user: Users = Depends(get_current_user), request: Request = None):
