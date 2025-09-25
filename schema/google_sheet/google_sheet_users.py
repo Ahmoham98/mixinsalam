@@ -6,6 +6,6 @@ class Users (BaseModel):
     email: str
     created_at: str
     updated_at: str
-    is_active: str
+    is_active: bool
     role: str
     is_verified: bool
