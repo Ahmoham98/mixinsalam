@@ -11,12 +11,20 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from controllers.google_sheet.google_sheet_usage_records import UsageRecordsController
 from controllers.google_sheet.google_sheet_subscription import SubscriptionsController
 from controllers.google_sheet.google_sheet_plans import PlansController
-from routes.google_sheet.google_sheet_subscriptions import get_current_user
-from dependencies import AccessTokenBearer
+from controllers.google_sheet.google_sheet_users import UsersOperationController
 
 
 logger = logging.getLogger('uvicorn.access')
 logger.disabled = True
+
+async def get_user_by_token(token: str):
+    users = await UsersOperationController.get_all_users_from_google_sheet()
+    for user in users:
+        if user.get("mixin_access_token") == token or user.get("basalam_access_token"):
+            return user
+    else:
+        return None
+
 
 def register_middleware(app: FastAPI):
     
@@ -70,7 +78,7 @@ class QuotaEnforcementMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(status_code=401, content={"detail": "Missing or invalid token"})
             
             token = auth.split(" ", 1)[1]
-            user = await get_current_user(token)
+            user = await get_user_by_token(token)
             user_id = user["id"]
             # Get current subscription
             subs = await SubscriptionsController.get_all_subscriptions()
