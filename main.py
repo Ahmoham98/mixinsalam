@@ -17,7 +17,7 @@ app = FastAPI()
 #some comment
 origins = [
     "http://localhost:5173",
-    "http://myapp.test:5173"
+    "http://myapp.test:5173",
     "https://mixinsalamm.liara.run",  # Frontend URL
     "https://mixinsalam.liara.run",   # Backend URL
     "http://localhost:3000",
