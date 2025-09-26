@@ -23,7 +23,7 @@ def register_middleware(app: FastAPI):
     
     origins = [
         "http://localhost:5173",
-        "http://myapp.test:5173"
+        "http://myapp.test:5173",
         "https://mixinsalamm.liara.run",  # Frontend URL
         "https://mixinsalam.liara.run",   # Backend URL
         "http://localhost:3000",
@@ -57,6 +57,9 @@ def register_middleware(app: FastAPI):
 
 class QuotaEnforcementMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # skip option requests
+        if request.method == "OPTIONS":
+            return await call_next(request)
         # Only enforce on relevant endpoints
         if request.url.path.startswith("/api/usage/increment") or \
            request.url.path.startswith("/api/products/migrate") or \
