@@ -11,6 +11,7 @@ from routes.google_sheet.google_sheet_payments import payments_router
 from routes.google_sheet.google_sheet_admin import admin_router
 import uvicorn
 from middleware import QuotaEnforcementMiddleware
+from starlette.responses import PlainTextResponse
 
 app = FastAPI()
 
@@ -46,19 +47,7 @@ app.add_middleware(
 
 app.add_middleware(QuotaEnforcementMiddleware)
 
-@app.options("/{full_path:path}")
-async def options_handler(request: Request, full_path: str):
-    
-    return JSONResponse(
-        content={},
-        headers={
-            "Access-Control-Allow-Origin": origins,
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-            "Access-Control-Allow-Headers": "Content-Type, Accept, Authorization, Origin, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Max-Age": "3600",
-        }
-    )
+
 
 
 app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags=["basalam_client"])
