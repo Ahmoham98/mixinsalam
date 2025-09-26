@@ -47,7 +47,20 @@ app.add_middleware(
 
 app.add_middleware(QuotaEnforcementMiddleware)
 
-
+@app.options("/{full_path:path}")
+async def options_handler(request: Request, full_path: str):
+    # Handles all OPTIONS requests, including those with query parameters
+    return PlainTextResponse(
+        "",
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": request.headers.get("origin", "*"),
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+            "Access-Control-Allow-Headers": request.headers.get("access-control-request-headers", "*"),
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Max-Age": "3600",
+        },
+    )
 
 
 app.include_router(basalam_client.basalam_client, prefix="/basalam/client", tags=["basalam_client"])
