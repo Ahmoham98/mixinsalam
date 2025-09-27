@@ -97,7 +97,7 @@ class QuotaEnforcementMiddleware(BaseHTTPMiddleware):
             # Enforce quotas
             if request.url.path.endswith("migrate") and migration_used >= int(plan["quota_migration"]):
                 return JSONResponse(status_code=429, content={"detail": "Migration quota exceeded"})
-            if request.url.path.endswith("realtime-update") and realtime_used >= int(plan["quota_realtime_updates"]):
+            if request.url.path.endswith("realtime") and realtime_used >= int(plan["quota_realtime_updates"]):
                 return JSONResponse(status_code=429, content={"detail": "Real-time update quota exceeded"})
         response = await call_next(request)
         return response 
