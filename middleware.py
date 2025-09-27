@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
+from sqlalchemy.sql.operators import endswith_op
 from starlette.middleware.base import BaseHTTPMiddleware
 from controllers.google_sheet.google_sheet_usage_records import UsageRecordsController
 from controllers.google_sheet.google_sheet_subscription import SubscriptionsController
@@ -20,7 +21,7 @@ logger.disabled = True
 async def get_user_by_token(token: str):
     users = await UsersOperationController.get_all_users_from_google_sheet()
     for user in users:
-        if user.get("mixin_access_token") == token or user.get("basalam_access_token"):
+        if user.get("mixin_access_token") == token or user.get("basalam_access_token") == token:
             return user
     else:
         return None
@@ -79,6 +80,9 @@ class QuotaEnforcementMiddleware(BaseHTTPMiddleware):
             
             token = auth.split(" ", 1)[1]
             user = await get_user_by_token(token)
+            if not user:
+                return JSONResponse(status_code=401, content={"detail": "User not found for provided token"})
+            
             user_id = user["id"]
             # Get current subscription
             subs = await SubscriptionsController.get_all_subscriptions()
@@ -94,10 +98,20 @@ class QuotaEnforcementMiddleware(BaseHTTPMiddleware):
             usage = next((u for u in usage_records if int(u["user_id"]) == user_id), None)
             migration_used = int(usage["migration_used"]) if usage else 0
             realtime_used = int(usage["realtime_used"]) if usage else 0
-            # Enforce quotas
+            
+            # Check query parameter for type
+            usage_type = request.query_params.get("type")
+            
+            # Enforce quotas based on query parameter
+            if usage_type == "migration" and migration_used >= int(plan["quota_migration"]):
+                return JSONResponse(status_code=429, content={"detail": "Migration quota exceeded"})
+            if usage_type == "realtime" and realtime_used >= int(plan["quota_realtime_updates"]):
+                return JSONResponse(status_code=429, content={"detail": "Real-time update quota exceeded"})
+            
+            # For other endpoints, check path endings
             if request.url.path.endswith("migrate") and migration_used >= int(plan["quota_migration"]):
                 return JSONResponse(status_code=429, content={"detail": "Migration quota exceeded"})
-            if request.url.path.endswith("realtime") and realtime_used >= int(plan["quota_realtime_updates"]):
+            if request.url.path.endswith("realtime-update") and realtime_used >= int(plan["quota_realtime_updates"]):
                 return JSONResponse(status_code=429, content={"detail": "Real-time update quota exceeded"})
         response = await call_next(request)
         return response 
