@@ -97,8 +97,7 @@ class ProductController:                # Need to assign real body data from sch
             all_products.extend(items)
 
             # detect total pages
-            total_count = first.get("total_pages") or len(items)
-            total_pages = (total_count // per_page) + (1 if total_count % per_page else 0)
+            total_pages = first.get("total_pages")
             # fetch remaining in batches
             batch_results = await ProductController._fetch_in_batches(
                 client, base_url, headers, total_pages, per_batch
@@ -149,8 +148,7 @@ class ProductController:                # Need to assign real body data from sch
             all_products.extend(items)
 
             # detect total pages
-            total_count = first.get("total_page") or len(items)
-            total_pages = (total_count // per_page) + (1 if total_count % per_page else 0)
+            total_pages = first.get("total_page")
 
             # fetch remaining in batches
             batch_results = await ProductController._fetch_in_batches(
