@@ -45,6 +45,7 @@ class ProductController:                # Need to assign real body data from sch
     @staticmethod
     async def _fetch_in_batches(client, base_url, headers, total_pages, per_batch=20):
         results = []
+        print (f"total page in fetch in batch function is : {total_pages}")
         for i in range(2, total_pages + 1, per_batch):  # start from page=2
             batch_pages = range(i, min(i + per_batch, total_pages + 1))
             tasks = [
@@ -103,7 +104,7 @@ class ProductController:                # Need to assign real body data from sch
                 client, base_url, headers, total_pages, per_batch
             )
             for r in batch_results:
-                all_products.extend(r.get("results") or r.get("products") or [])
+                all_products.extend(r.get("result") or r.get("products") or [])
 
         return {"count": len(all_products), "products": all_products}
 
