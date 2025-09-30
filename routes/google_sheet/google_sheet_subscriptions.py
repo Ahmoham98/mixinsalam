@@ -20,7 +20,8 @@ async def get_current_user(token: str = Depends(access_token_bearer)):
 async def list_subscriptions(user: Users = Depends(get_current_user)):
     # Admin: list all, user: list own
     # TODO: check admin
-    return await SubscriptionsController.get_all_subscriptions()
+    if user.role == "admin":
+        return await SubscriptionsController.get_all_subscriptions()
 
 @subscriptions_router.get("/current")
 async def get_current_subscription(user: Users = Depends(get_current_user)):
