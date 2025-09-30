@@ -1,5 +1,6 @@
 
 from sqlalchemy.ext.asyncio.session import AsyncSession
+from starlette.responses import Content
 from schema.mixin import MixinAddToDatabase, MixinCreate
 from schema.basalam import BasalamCreate, BaslaamUpdate
 
@@ -7,6 +8,8 @@ from fastapi import HTTPException, status, UploadFile
 import requests
 import json
 import httpx
+import asyncio
+import random
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 post = "POST"
@@ -18,7 +21,40 @@ delete = "DELETE"
 class ProductController:                # Need to assign real body data from schemas after testing the endpoint using inserted sample data
     def __init__(self):
         pass
-    
+    # ✅ helper: fetch one page with retry + exponential backoff
+    @staticmethod
+    async def _fetch_page(client: httpx.AsyncClient, url: str, headers: dict, params: dict, retries: int = 3):
+        delay = 1
+        for attempt in range(retries):
+            try:
+                resp = await client.get(url, headers=headers, params=params)
+                if resp.status_code == 200:
+                    return resp.json()
+                else:
+                    print(f"⚠️ Failed page {params.get('page')}, status {resp.status_code}")
+            except Exception as e:
+                print(f"❌ Error fetching page {params.get('page')}: {e}")
+            # exponential backoff + jitter
+            print("before calling the sleep of asyncio")
+            await asyncio.sleep(delay + random.uniform(0, 0.5))
+            print("after calling the sleep of asyncio")
+            
+            delay *= 2
+        return None
+    # ✅ helper: fetch with batching
+    @staticmethod
+    async def _fetch_in_batches(client, base_url, headers, total_pages, per_batch=20):
+        results = []
+        for i in range(2, total_pages + 1, per_batch):  # start from page=2
+            batch_pages = range(i, min(i + per_batch, total_pages + 1))
+            tasks = [
+                ProductController._fetch_page(client, base_url, headers, {"page": p})
+                for p in batch_pages
+            ]
+            batch_results = await asyncio.gather(*tasks, return_exceptions=False)
+            results.extend([r for r in batch_results if r])
+        return results
+
     async def get_mixin_products(url: str, mixin_token: str, mixin_page: int):
         mixin_method=get
         mixin_url=f"https://{url}/api/management/v1/products/"
@@ -40,7 +76,38 @@ class ProductController:                # Need to assign real body data from sch
             return mixin_body
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for getting all mixin products. check if you are connected to mixin website")
-    
+    # ✅ Aggregated Mixin fetch (batched parallel + retry)
+    @staticmethod
+    async def get_all_mixin_products(mixin_url: str, mixin_token: str, per_batch: int = 20):
+        per_page = 100
+        base_url = f"https://{mixin_url}/api/management/v1/products/"
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": f"Api-Key {mixin_token}",
+        }
+
+        all_products = []
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # first request
+            first = await ProductController._fetch_page(client, base_url, headers, {"page": 1})
+            if not first:
+                raise HTTPException(status_code=404, detail="Failed to fetch Mixin products")
+            items = first.get("result") or first.get("products") or []
+            all_products.extend(items)
+
+            # detect total pages
+            total_count = first.get("total_pages") or len(items)
+            total_pages = (total_count // per_page) + (1 if total_count % per_page else 0)
+            # fetch remaining in batches
+            batch_results = await ProductController._fetch_in_batches(
+                client, base_url, headers, total_pages, per_batch
+            )
+            for r in batch_results:
+                all_products.extend(r.get("results") or r.get("products") or [])
+
+        return {"count": len(all_products), "products": all_products}
+
     async def get_basalam_products(token: str, vendor_id: int, basalam_page: int):
         method= get
         url=f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
@@ -61,7 +128,39 @@ class ProductController:                # Need to assign real body data from sch
             return basalam_body
         else:
             raise HTTPException(status_code=404, detail="we can't connect to the provider")
-    
+    # ✅ Aggregated Basalam fetch (batched parallel + retry)
+    @staticmethod
+    async def get_all_basalam_products(token: str, vendor_id: int, per_batch: int = 20):
+        per_page = 10
+        base_url = f"https://core.basalam.com/v3/vendors/{vendor_id}/products"
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {token}",
+        }
+
+        all_products = []
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            # first request
+            first = await ProductController._fetch_page(client, base_url, headers, {"page": 1})
+            if not first:
+                raise HTTPException(status_code=404, detail="Failed to fetch Basalam products")
+
+            items = first.get("data") or first.get("products") or []
+            all_products.extend(items)
+
+            # detect total pages
+            total_count = first.get("total_page") or len(items)
+            total_pages = (total_count // per_page) + (1 if total_count % per_page else 0)
+
+            # fetch remaining in batches
+            batch_results = await ProductController._fetch_in_batches(
+                client, base_url, headers, total_pages, per_batch
+            )
+            for r in batch_results:
+                all_products.extend(r.get("data") or r.get("products") or [])
+
+        return {"count": len(all_products), "products": all_products}
+
     async def get_mixin_product(mixin_url: str, mixin_product_id: int, mixin_token: str ):
         method = get
         pk = mixin_product_id
@@ -330,7 +429,32 @@ class ProductController:                # Need to assign real body data from sch
             return category_prediction
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for category prediction. check if you are connected to the category detection service")
+    
+    async def fetch_page(client: httpx.AsyncClient, url: str, params: dict):
+        try:
+            response = await client.get(url, params=params, timeout=30.0)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            print (f"error fetching {url} with {params}: {e}")
+
+    async def fetch_all_products(vendor_id, total_page, per_page, url, token):
+        total_pages = (total_page + per_page - 1) // per_page
+        results = []
+        # limit concurrency (e.g. 20 at a time)
+        semaphore = asyncio.Semaphore(20)
+
+        async with httpx.AsyncClient() as client:
+            async def fetch_with_sem(page: int):
+                async with semaphore:
+                    return await ProductController.fetch_page(client, url, {"page": page, "limit": per_page})
         
+            tasks = [fetch_with_sem(page) for page in range(1, total_pages + 1)]
+            pages = await asyncio.gather(*tasks)
+        for page in pages:
+            results.extand(page.get("prdoucts, []"))
+        return results
+
     @retry(
         stop=stop_after_attempt(3),                     # try three more time
         wait=wait_exponential(multiplier=1, min=1, max=5),  # some delay between retries
