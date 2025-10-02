@@ -1,3 +1,4 @@
+from ast import Dict
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from controllers.google_sheet.google_sheet_payments import PaymentsController
 from schema.google_sheet.google_sheet_users import Users
@@ -15,7 +16,7 @@ async def get_current_user(token: str = Depends(access_token_bearer)):
             return user
     raise HTTPException(status_code=401, detail="User not found for provided token")
 
-@payments_router.get("/", response_model=list)
+@payments_router.get("/")
 async def get_payments(user: Users = Depends(get_current_user)):
     user_id = user["id"]
     records = await PaymentsController.get_all_payments()

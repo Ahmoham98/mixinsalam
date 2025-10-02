@@ -16,12 +16,15 @@ async def get_current_user(token: str = Depends(access_token_bearer)):
             return user
     raise HTTPException(status_code=401, detail="User not found for provided token")
 
-@subscriptions_router.get("/", response_model=list)
+@subscriptions_router.get("/")
 async def list_subscriptions(user: Users = Depends(get_current_user)):
     # Admin: list all, user: list own
     # TODO: check admin
-    if user.role == "admin":
+    if user["role"] == "admin":
         return await SubscriptionsController.get_all_subscriptions()
+    else: 
+        return "sorry! you don't have enuogh privilage!"
+        
 
 @subscriptions_router.get("/current")
 async def get_current_subscription(user: Users = Depends(get_current_user)):

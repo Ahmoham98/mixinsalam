@@ -45,7 +45,6 @@ class ProductController:                # Need to assign real body data from sch
     @staticmethod
     async def _fetch_in_batches(client, base_url, headers, total_pages, per_batch=20):
         results = []
-        print (f"total page in fetch in batch function is : {total_pages}")
         for i in range(2, total_pages + 1, per_batch):  # start from page=2
             batch_pages = range(i, min(i + per_batch, total_pages + 1))
             tasks = [
@@ -222,7 +221,7 @@ class ProductController:                # Need to assign real body data from sch
         elif response.status_code == 401:
             return {
                 "result": {
-                    "message": "you are 401 and you are not Authorized to have access",
+                    "message": "status_code is 401 and you are not Authorized to have access",
                     "response": response.json()
                 }
             }
@@ -323,8 +322,20 @@ class ProductController:                # Need to assign real body data from sch
 
         if response.status_code == 201:
             return response.json()  # Includes the new product’s ID
+        elif response.status_code == 401:
+            return {
+                "result": {
+                    "message": "status_code is 401 and you are not Authorized to have access",
+                    "response": response.json()
+                }
+            }
         elif response.status_code == 403:
-            raise HTTPException(403, "Forbidden – check your token or permissions")
+            return {
+                "result": {
+                    "message": "you have 403 forbidden",
+                    "response": response.json()
+                }
+            }
         else:
             return {
             "status_code": response.status_code,
@@ -350,9 +361,16 @@ class ProductController:                # Need to assign real body data from sch
         if response.status_code == 200 :
             response = response.json()
             return response
-        if response.status_code == 404 :
+        elif response.status_code == 404 :
             response = response.json()
             return response
+        elif response.status_code == 401:
+            return {
+                "result": {
+                    "message": "status_code is 401 and you are not Authorized to have access",
+                    "response": response.json()
+                }
+            }
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="invalid request for updating mixin products. check if you are connected to mixin website")
     @staticmethod
@@ -369,9 +387,14 @@ class ProductController:                # Need to assign real body data from sch
         
         if response.status_code == 200:
             basalam_body = response.json()
-            
             return basalam_body
-            
+        elif response.status_code == 401:
+            return {
+                "result": {
+                    "message": "status_code is 401 and you are not Authorized to have access",
+                    "response": response.json()
+                }
+            }
         elif response.status_code == 403:
             raise HTTPException(status_code=404, detail="403 forbidden error occurred. perhaps whe don't have access to the resource for now! check the request and parameters again for future request.")
         elif response.status_code == 500:
