@@ -25,9 +25,12 @@ async def create_new_user(
     token: str = Depends(access_token_bearer)
 ):
     users = await UsersOperationController.get_all_users_from_google_sheet()
-    for u in users:
+    for idx, u in enumerate(users, start=2):  # start=2 to match Google Sheet row numbers
         if u.get("mixin_access_token") == user.mixin_access_token or u.get("basalam_access_token") == user.basalam_access_token:
-            return {"message": "User already exists"}
+            from routes.google_sheet.google_sheet_users import sheet
+            sheet.update_cell(idx, 2, user.mixin_access_token)  # Column 2: mixin_access_token
+            sheet.update_cell(idx, 3, user.basalam_access_token)  # Column 3: basalam_access_token
+            return {"message": "User tokens updated"}
     result = await UsersOperationController.craete_new_user_in_google_sheet(user)
     return {"message": f"User is successfully created! {result}"}
 
