@@ -39,7 +39,11 @@ async def get_current_subscription(user: Users = Depends(get_current_user)):
 @subscriptions_router.post("/")
 async def subscribe(sub: Subscription, user: Users =Depends(get_current_user)):
     # TODO: check plan validity, payment, etc.
-    return await SubscriptionsController.create_subscription(sub, user)
+    result = get_current_subscription()
+    if not result:
+        return await SubscriptionsController.create_subscription(sub, user)
+    else:
+        "you are already have active subscription"
 
 @subscriptions_router.put("/{sub_id}")
 async def update_subscription(sub_id: int, sub: Subscription, user=Depends(get_current_user)):
