@@ -1,4 +1,6 @@
+from logging import raiseExceptions
 from fastapi import APIRouter, Depends, HTTPException, status
+from pyasn1.type.univ import Null
 from controllers.google_sheet.google_sheet_subscription import SubscriptionsController
 from schema.google_sheet.subscriptions import Subscription
 from schema.google_sheet.google_sheet_users import Users
@@ -39,11 +41,14 @@ async def get_current_subscription(user: Users = Depends(get_current_user)):
 @subscriptions_router.post("/")
 async def subscribe(sub: Subscription, user: Users =Depends(get_current_user)):
     # TODO: check plan validity, payment, etc.
-    result = get_current_subscription()
-    if not result:
+    user_id = user["id"]
+    subs = await SubscriptionsController.get_all_subscriptions()
+    subscription_of_the_current_user = next((u for u in subs if int(u["user_id"]) == user_id), None)
+    if not subscription_of_the_current_user:
         return await SubscriptionsController.create_subscription(sub, user)
     else:
-        "you are already have active subscription"
+        return "kprst({})"
+        
 
 @subscriptions_router.put("/{sub_id}")
 async def update_subscription(sub_id: int, sub: Subscription, user=Depends(get_current_user)):
