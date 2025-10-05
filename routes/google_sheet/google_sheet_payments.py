@@ -1,4 +1,4 @@
-from ast import Dict
+import requests
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from controllers.google_sheet.google_sheet_payments import PaymentsController
 from schema.google_sheet.google_sheet_users import Users
@@ -29,16 +29,58 @@ async def admin_list_payments():
 @payments_router.post("/")
 async def create_payment(payment: Payment, user: Users = Depends(get_current_user)):
     return await PaymentsController.create_payment(payment, user)
-# payment and billing endpoints starts
-@payments_router.post("/webhooks/stripe")
-async def stripe_webhook(request: Request):
-    # TODO: Parse and verify Stripe event, update payment/subscription status in Google Sheet
-    # This is a stub for now
-    return {"message": "Webhook received"}
+# payment and billing endpoints startss
 
-@payments_router.get("/{payment_id}/invoice")
-async def download_invoice(payment_id: int):
-    payment = await PaymentsController.get_payment_by_id(payment_id)
-    if not payment or not payment.get("invoice_url"):
-        raise HTTPException(status_code=404, detail="Invoice not found")
-    return {"invoice_url": payment["invoice_url"]}
+# -------------------------
+# payment_url generation
+# -------------------------
+MERCHANT_ID = ""  # کدی که زرین‌پال بهت میده
+CALLBACK_URL = ""         # آدرس برگشت بعد از پرداخت
+
+@payments_router.get("/pay")
+def create_payment(amount: int):
+    req_data = {
+        "merchant_id": MERCHANT_ID,
+        "amount": amount,  # مبلغ به ریال (اینجا: 2000 تومان)
+        "callback_url": CALLBACK_URL,
+        "description": "پرداخت تستی برای خدمات سایت"
+    }
+    headers = {"accept": "application/json",
+               "content-type": "application/json"}
+
+    response = requests.post("https://api.zarinpal.com/pg/v4/payment/request.json",
+                             json=req_data, headers=headers)
+    data = response.json()
+    if data["data"]["code"] == 100:
+        # هدایت کاربر به درگاه زرین پال
+        return {"payment_url": f"https://www.zarinpal.com/pg/StartPay/{data['data']['authority']}"}
+    else:
+        return {"error": data}
+
+
+# -------------------------
+# verify_payment
+# -------------------------
+@payments_router.get("/verify")
+def verify_payment(request: Request, amount: int):
+    authority = request.query_params.get("Authority")
+    status = request.query_params.get("Status")
+
+    if status != "OK":
+        return {"status": "failed", "message": "پرداخت لغو شد"}
+
+    req_data = {
+        "merchant_id": MERCHANT_ID,
+        "amount": amount,   # باید همون مبلغ مرحله قبل باشه
+        "authority": authority
+    }
+    headers = {"accept": "application/json",
+               "content-type": "application/json"}
+
+    response = requests.post("https://api.zarinpal.com/pg/v4/payment/verify.json",
+                             json=req_data, headers=headers)
+    data = response.json()
+    if data["data"]["code"] == 100:
+        return {"status": "success", "ref_id": data["data"]["ref_id"]}
+    else:
+        return {"status": "failed", "error": data}
