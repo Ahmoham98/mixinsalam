@@ -75,3 +75,7 @@ class BaslaamUpdate(BaseModel):
     
     class Config:
         arbitrary_types_allowed=True
+
+
+class ProductIDs(BaseModel):
+    ids: List[int]
