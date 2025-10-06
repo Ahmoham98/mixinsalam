@@ -1,14 +1,15 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File, Query
+from fastapi import APIRouter, HTTPException, status, Depends, Form, UploadFile, File, Query, Body
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from dependencies import AccessTokenBearer
+from typing import Dict, Any, List
 
 from database import get_session
-from schema.mixin import MixinCreate, MixinAddToDatabase
-from schema.basalam import BasalamCreate, BaslaamUpdate
+from schema.mixin import MixinCreate, ProductIDs
+from schema.basalam import BasalamCreate, BaslaamUpdate, ProductShipingData
 from controllers.products import ProductController
 
-
+import asyncio
 import httpx
 import mimetypes
 from io import BytesIO
@@ -77,6 +78,30 @@ async def get_mixin_product_by_product_id(
 ):
     result = await ProductController.get_mixin_product(mixin_url=mixin_url, mixin_product_id=mixin_product_id, mixin_token=mixin_token)
     return result
+# -------------------------
+# Endpoint: Fetch multiple products form mixin base on the list id you give it with the ket of "ids"
+# -------------------------
+@product_router.post("/productids")
+async def get_multiple_products(
+    body: ProductIDs,
+    mixin_url: str = "example.com",
+    mixin_token: str = Depends(access_token_bearer)
+):
+    """
+    Receives JSON like:
+    {
+        "ids": [101, 102, 103]
+    }
+    and fetches all product details in parallel.
+    """
+    # Run all requests concurrently
+    ids = body.ids
+    tasks = [
+        ProductController.get_mixin_product(mixin_url, product_id, mixin_token) for product_id in ids
+    ]
+    results = await asyncio.gather(*tasks)
+
+    return {"count": len(results), "products": results}
 
 @product_router.get("/basalam/{basalam_product_id}")
 async def get_basalam_product_by_product_id(

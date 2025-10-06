@@ -39,3 +39,7 @@ class MixinAddToDatabase:
     name: str
     price: int
     description: str | None
+
+
+class ProductIDs(BaseModel):
+    ids: List[int]
