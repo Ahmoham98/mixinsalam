@@ -81,7 +81,7 @@ async def get_mixin_product_by_product_id(
 # -------------------------
 # Endpoint: Fetch multiple products form mixin base on the list id you give it with the ket of "ids"
 # -------------------------
-@product_router.post("/productids")
+@product_router.post("/mixin/productids")
 async def get_multiple_products(
     body: ProductIDs,
     mixin_url: str = "example.com",
