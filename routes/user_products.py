@@ -52,7 +52,7 @@ async def get_all_basalam_products(
 ):
     result = await ProductController.get_basalam_products(token=token ,vendor_id=vendor_id ,basalam_page=basalam_page)
     return result
-
+# ✅ New: Aggregated Basalam endpoint
 @product_router.get("/my-basalam-products/{vendor_id}/all")
 async def get_all_basalam_products_all(
     vendor_id: int,

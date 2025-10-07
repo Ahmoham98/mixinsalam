@@ -1,4 +1,3 @@
-from fastapi import Depends
 from schema.google_sheet.google_sheet_users import Users
 from schema.google_sheet.payments import Payment
 from google_sheet_configuration import spreadsheet

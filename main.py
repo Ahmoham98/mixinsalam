@@ -4,6 +4,7 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from routes import basalam_client, google_sheet, mixin_client, product_images, user_products
 from routes.google_sheet import google_sheet_users
+from routes.google_sheet.google_sheet_comments import comments_router
 from routes.google_sheet.google_sheet_plans import plans_router
 from routes.google_sheet.google_sheet_subscriptions import subscriptions_router
 from routes.google_sheet.google_sheet_usage_records import usage_router
@@ -71,6 +72,7 @@ app.include_router(subscriptions_router, prefix="/api/subscription", tags=["subs
 app.include_router(usage_router, prefix="/api/usage", tags=["usage"])
 app.include_router(payments_router, prefix="/api/payments", tags=["payments"])
 app.include_router(admin_router)
+app.include_router(comments_router, prefix="/api/v1/comments", tags=["comments"])
 
 
 @app.get("/")
